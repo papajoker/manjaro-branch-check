@@ -8,8 +8,8 @@ arch:
 
 repos:
   - "core"
-  #- "extra"
-  - "multilib"
+  - "extra"
+  #- "multilib"
 
 urls:
   - "http://mirrors.n-ix.net/archlinux/$repo/os/$arch/$repo.db"
