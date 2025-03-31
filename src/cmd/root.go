@@ -70,7 +70,7 @@ var rootCmd = &cobra.Command{
 		HiddenDefaultCmd: true, // hides cmd
 		// DisableDefaultCmd: true, // removes cmd
 	},
-	Long: `Manjaro Multi Branch Navigator
+	Long: `Manjaro Multi Branch packages Navigator
 use four branches with same config (archlinux, unstable, testing, stable)
 
 Which packages are new to a branch? (diff)
