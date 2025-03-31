@@ -34,14 +34,21 @@ go vet || {
     exit 1
 }
 
+echo $project
+echo var: ${commit}
+echo var: $(git branch --show-current 2>/dev/null)
+echo var: ${version}
+echo var: $(date +%F)
+
 # go build -gcflags '-l=4'
 GOGC=off go build  \
     -ldflags \
     "-s -w
-    -X main.GitID=${commit} \
-    -X main.GitBranch=$(git branch --show-current 2>/dev/null) \
-    -X main.Version=${version} \
-    -X main.BuildDate=$(date +%F)" \
+    -X $project/cmd.Project=${project} \
+    -X $project/cmd.GitID=${commit} \
+    -X $project/cmd.GitBranch=$(git branch --show-current 2>/dev/null) \
+    -X $project/cmd.Version=${version} \
+    -X $project/cmd.BuildDate=$(date +%F)" \
     -o "../${project}"
 
 

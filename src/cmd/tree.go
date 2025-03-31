@@ -11,6 +11,14 @@ import (
 	"path/filepath"
 )
 
+var (
+	GitBranch string
+	Version   string
+	BuildDate string
+	GitID     string
+	Project   string
+)
+
 func tree(config Config, cacheDir string) {
 	path := filepath.Join(os.Getenv("HOME"), ".config", "manjaro-branch-check.yaml")
 	fmt.Println("# database:", cacheDir)
@@ -42,7 +50,7 @@ func tree(config Config, cacheDir string) {
 		urls = append(urls, before)
 	}
 	fmt.Println("# servers: ", urls)
-
+	fmt.Printf("# %s Version: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 
 // updateCmd represents the tree command
