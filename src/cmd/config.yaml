@@ -1,0 +1,17 @@
+branches:
+  - stable
+  - testing
+  - unstable
+
+arch:
+  - "x86_64"
+
+repos:
+  - "core"
+  #- "extra"
+  - "multilib"
+
+urls:
+  - "http://mirrors.n-ix.net/archlinux/$repo/os/$arch/$repo.db"
+  - "https://mirrors2.manjaro.org/$branch/$repo/$arch/$repo.db"
+
