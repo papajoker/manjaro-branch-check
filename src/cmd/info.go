@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mbc/cmd/alpm"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -13,7 +14,10 @@ import (
 	"google.golang.org/api/option"
 )
 
-var FlagIA bool
+var (
+	FlagIA        bool
+	FlagInstalled bool
+)
 
 func geminiInformation(pkg, repo string) {
 	ctx := context.Background()
@@ -51,6 +55,16 @@ func geminiInformation(pkg, repo string) {
 	*/
 }
 
+func getInstalled(pkg string) {
+	out, err := exec.Command("/usr/bin/pacman", "-Q", pkg).Output()
+	if err == nil {
+		fmt.Println()
+		fmt.Print("Installed:")
+		fmt.Println(strings.ReplaceAll(string(out), pkg, ""))
+	}
+
+}
+
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
 	Use:        "info pakageName",
@@ -85,6 +99,9 @@ var infoCmd = &cobra.Command{
 				fmt.Println(" ?")
 			}
 		}
+		if FlagInstalled {
+			getInstalled(pkgName)
+		}
 		if FlagIA {
 			geminiInformation(pkgName, repo)
 		}
@@ -95,5 +112,8 @@ func init() {
 	rootCmd.AddCommand(infoCmd)
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
 		infoCmd.Flags().BoolVarP(&FlagIA, "ia", "", FlagIA, "add General Info by Gemini")
+	}
+	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
+		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, "version installed")
 	}
 }

@@ -68,8 +68,7 @@ func (p Package) String() string {
 	d := p.BUILDDATE.Format("06-01-02 15:04")
 	return fmt.Sprintf(` Name:     %s
  Version:  %s
- Date:     %s
- Repo:     %s`, p.NAME, p.VERSION, d, p.REPO)
+ Date:     %s`, p.NAME, p.VERSION, d)
 }
 
 func (p Package) Desc(maxi int) string {
