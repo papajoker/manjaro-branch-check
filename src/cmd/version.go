@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
@@ -20,6 +21,12 @@ var (
 	FlagDowngrade bool
 	FlagGrep      string
 )
+
+type versionResult struct {
+	name    string
+	vfirst  string
+	vsecond string
+}
 
 // Regex pour supprimer les codes ANSI
 var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*m`)
@@ -40,9 +47,11 @@ func padRightANSI(s string, width int) string {
 
 func compareVersions(v1, v2 string) int {
 	// Gérer les préfixes comme "2:" dans "2:1.0.0"
+	//TODO remove ALL prefix (not only 2)
 	v1 = strings.TrimPrefix(v1, "2:")
 	v2 = strings.TrimPrefix(v2, "2:")
 
+	//BUG semver  ?? 0.1.0.9-8        0.1.0.9-11  ? -8 > -11 (ok, for -10 -11)
 	ver1, err1 := semver.NewVersion(v1)
 	ver2, err2 := semver.NewVersion(v2)
 
@@ -76,8 +85,7 @@ func highlightDiff(va, vb string, color string) string {
 	return highlighted.String() + Theme("")
 }
 
-func version(config Config, cacheDir string, branches []string) {
-	fmt.Printf("# %-53s %-49s / %s\n", "compare versions", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+func version(versions *[]versionResult, config Config, cacheDir string, branches []string) (int, int, string) {
 	var tmp [2]alpm.Packages
 	tmpkeys := make(map[string]bool)
 	tmp[0] = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos)
@@ -106,7 +114,6 @@ func version(config Config, cacheDir string, branches []string) {
 		os.Exit(2)
 	}
 
-	fmt.Println("FlagGrep:", FlagGrep)
 	for k := range tmpkeys {
 		if FlagGrep != "" {
 			if reg.MatchString(k) {
@@ -120,30 +127,36 @@ func version(config Config, cacheDir string, branches []string) {
 
 	clear(tmpkeys)
 
+	col1, col2 := 12, 12
+
 	for _, pkg := range keys {
 		va := tmp[0][pkg].VERSION
 		vb := tmp[1][pkg].VERSION
 
-		//marker := ""
 		highlightVb := vb
 		highlightVa := va
 		switch compareVersions(va, vb) {
 		case -1:
-			//marker = "" // vb >
+			// vb >
 			highlightVb = highlightDiff(va, vb, Theme(branches[1]))
 			if FlagDowngrade {
 				highlightVb = ""
 			}
 		case 1:
-			//marker = "(downgrade)" // vb <
+			//vb <
 			highlightVa = highlightDiff(vb, va, Theme(branches[0]))
-			highlightVa = padRightANSI(highlightVa, 40)
 		}
 		if highlightVb != "" {
-			fmt.Printf("%-55s %-40s %s\n", pkg, highlightVa, highlightVb)
+			*versions = append(*versions, versionResult{pkg, highlightVa, highlightVb})
+			if len(pkg) > col1 {
+				col1 = len(pkg)
+			}
+			if len(va) > col2 {
+				col2 = len(va)
+			}
 		}
 	}
-	fmt.Printf("# %d packages\n", len(keys))
+	return col1 + 1, col2 + 1, FlagGrep
 }
 
 // diffCmd represents the diff command
@@ -164,7 +177,20 @@ linux66                              6.6.83-1                     6.6.84-1
 		conf := ctx.Value("configVars").(Config)
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches = FlagBranches.toSlice()
-		version(conf, cacheDir, branches)
+
+		var versions []versionResult
+		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
+
+		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", "compare versions", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+		for _, v := range versions {
+			v.vfirst = padRightANSI(v.vfirst, col2)
+			fmt.Printf("%-"+strconv.Itoa(col1)+"s %-"+strconv.Itoa(col2)+"s %s\n", v.name, v.vfirst, v.vsecond)
+		}
+		fmt.Println()
+		fmt.Printf("# %d packages\n", len(versions))
+		if grepflag != "" {
+			fmt.Println("# filter:", grepflag)
+		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {

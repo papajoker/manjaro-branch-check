@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -57,8 +58,12 @@ var (
 	FlagBranches       = Branch{}
 )
 
-func diff(config Config, cacheDir string, branches []string) {
-	fmt.Printf("%-61s / %s\n", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+type diffResult struct {
+	first  string
+	second string
+}
+
+func diff(diffs *[]diffResult, config Config, cacheDir string, branches []string) (int, int, int) {
 	var tmp [2]alpm.Packages
 	var pkgs [2][]string
 
@@ -81,19 +86,21 @@ func diff(config Config, cacheDir string, branches []string) {
 		}
 	}
 	sort.Strings(pkgs[0])
-	fmt.Printf("# %-48d /   %d\n", l0, l1)
 	tmp[0] = make(map[string]*alpm.Package)
 	tmp[1] = make(map[string]*alpm.Package)
 
+	max := 12
 	for _, name := range pkgs[0] {
 		if strings.HasSuffix(name, "*") {
-			fmt.Printf("%-50s / %s\n", "", strings.TrimSuffix(name, " *"))
+			*diffs = append(*diffs, diffResult{"", strings.TrimSuffix(name, " *")})
 		} else {
-			fmt.Printf("%-50s / %s\n", name, "")
+			*diffs = append(*diffs, diffResult{name, ""})
+			if len(name) > max {
+				max = len(name)
+			}
 		}
 	}
-
-	//fusion(pkgs[0], pkgs[1])
+	return max, l0, l1
 }
 
 // diffCmd represents the diff command
@@ -116,7 +123,16 @@ lib32-gamescope-plus                               /
 		conf := ctx.Value("configVars").(Config)
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches = FlagBranches.toSlice()
-		diff(conf, cacheDir, branches)
+
+		var diffs []diffResult
+		max, l0, l1 := diff(&diffs, conf, cacheDir, branches)
+		fmt.Printf("%-"+strconv.Itoa(max+11)+"s / %s\n", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+		for _, d := range diffs {
+			//TODO gray color for email
+			fmt.Printf("%-"+strconv.Itoa(max)+"s / %s\n", d.first, d.second)
+		}
+		fmt.Println()
+		fmt.Printf("# %-"+strconv.Itoa(max-2)+"d / %d\n", l0, l1)
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {

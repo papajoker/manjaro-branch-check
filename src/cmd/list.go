@@ -7,13 +7,19 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
 
 var FlagPackager string = "manjaro"
 
-func listP(config Config, cacheDir string, branch string) {
+type listResult struct {
+	name  string
+	count int
+}
+
+func listP(packagers *[]listResult, config Config, cacheDir string, branch string) int {
 
 	reg, err := regexp.Compile(FlagPackager)
 	if err != nil {
@@ -38,10 +44,14 @@ func listP(config Config, cacheDir string, branch string) {
 	}
 	sort.Strings(keys)
 
+	max := 10
 	for _, key := range keys {
-		//TODO mettre email en gris
-		fmt.Printf("%-56s %5d\n", key, items[key])
+		*packagers = append(*packagers, listResult{key, items[key]})
+		if len(key) > max {
+			max = len(key)
+		}
 	}
+	return max
 }
 
 // listCmd represents the list command
@@ -54,7 +64,13 @@ var listCmd = &cobra.Command{
 		conf := ctx.Value("configVars").(Config)
 		cacheDir := ctx.Value("cacheDir").(string)
 
-		listP(conf, cacheDir, FlagBranches.toSlice()[0])
+		var packagers []listResult
+		max := listP(&packagers, conf, cacheDir, FlagBranches.toSlice()[0]) + 1
+
+		for _, packager := range packagers {
+			//TODO gray color for email
+			fmt.Printf("%-"+strconv.Itoa(max)+"s %5d\n", packager.name, packager.count)
+		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
