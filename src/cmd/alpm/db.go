@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -164,14 +165,14 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string) Packages {
 	return pkgs
 }
 
-func Load(dir string, repos []string) (pkgs Packages) {
+func Load(dirPath string, repos []string) (pkgs Packages) {
 	pkgs = make(Packages, 5000)
 	for _, repo := range repos {
 		nb := len(pkgs)
 		//fmt.Printf("%v# %s ...%v\t", theme.ColorGray, repo, theme.ColorNone)
-		f, err := os.Open(dir + "/" + repo + ".db")
+		f, err := os.Open(filepath.Join(dirPath, repo+".db"))
 		if err != nil {
-			fmt.Printf("Error: can't read file %s\n", dir+"/"+repo+".db")
+			fmt.Printf("Error: can't read file %s\n", filepath.Join(dirPath, repo+".db"))
 			//os.Exit(1)
 			continue
 		}
@@ -179,7 +180,7 @@ func Load(dir string, repos []string) (pkgs Packages) {
 		pkgs = ExtractTarGz(f, pkgs, repo)
 		if len(pkgs)-nb == 0 {
 			sync := "sync"
-			if strings.Contains(dir, "/var/lib/") {
+			if strings.Contains(dirPath, "/var/lib/") {
 				sync = "local"
 			}
 			fmt.Printf(
@@ -193,65 +194,3 @@ func Load(dir string, repos []string) (pkgs Packages) {
 	}
 	return pkgs
 }
-
-/*
-func Replaced(pkgName string, pkgs Packages) (pkg *Package, err bool) {
-	for _, pkg := range pkgs {
-		for _, alias := range pkg.REPLACES {
-			if pkgName == alias {
-				return pkg, true
-			}
-		}
-	}
-	return nil, false
-}
-
-func ProvideBy(pkgName string, pkgs Packages) (provides []string, ok bool) {
-	for _, pkg := range pkgs {
-		for _, alias := range pkg.PROVIDES {
-			if strings.Contains(alias, ".so") {
-				continue
-			}
-			alias = func(s string) string {
-				if matchs := strings.SplitN(s, "=", 2); len(matchs) > 1 {
-					s = matchs[0]
-				}
-				return s
-			}(alias)
-			if pkgName == alias {
-				provides = append(provides, pkg.NAME)
-			}
-		}
-	}
-	return provides, len(provides) > 0
-}
-*/
-/*
-func LocalParse(directory string, searchs []*Package) (results []*Package, ok bool) {
-
-	errMsg := gotext.Get("Error")
-
-	matchs, err := filepath.Glob(directory + "\/*\/desc")
-	if err != nil {
-		fmt.Printf("%s ! %v", errMsg, err)
-	}
-	if len(matchs) < 1 {
-		fmt.Printf("%s ! %s empty ?", errMsg, directory)
-	}
-	for _, f := range matchs {
-		for _, n := range searchs {
-			if strings.Contains(f, "/"+n.NAME+"-") {
-				pkg := Package{REPO: "local"}
-				b, _ := os.ReadFile(f)
-				pkg.set(string(b))
-				if pkg.NAME == n.NAME {
-					//fmt.Printf("  %v\n", pkg)
-					pkg.ReplacedBy = n.ReplacedBy
-					results = append(results, &pkg)
-				}
-			}
-		}
-	}
-	return results, len(results) > 0
-}
-*/

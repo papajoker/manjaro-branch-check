@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mbc/cmd/alpm"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 
@@ -24,7 +25,7 @@ func listP(config Config, cacheDir string, branch string) {
 	fmt.Println()
 
 	items := make(map[string]int)
-	pkgs := alpm.Load(cacheDir+"/"+branch+"/sync", config.Repos)
+	pkgs := alpm.Load(filepath.Join(cacheDir, branch, "sync"), config.Repos)
 	for _, pkg := range pkgs {
 		if reg.MatchString(pkg.PACKAGER) {
 			items[pkg.PACKAGER] += 1

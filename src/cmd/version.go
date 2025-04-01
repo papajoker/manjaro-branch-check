@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"mbc/cmd/alpm"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -79,8 +80,8 @@ func version(config Config, cacheDir string, branches []string) {
 	fmt.Printf("# %-53s %-49s / %s\n", "compare versions", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
 	var tmp [2]alpm.Packages
 	tmpkeys := make(map[string]bool)
-	tmp[0] = alpm.Load(cacheDir+"/"+branches[0]+"/sync", config.Repos)
-	tmp[1] = alpm.Load(cacheDir+"/"+branches[1]+"/sync", config.Repos)
+	tmp[0] = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos)
+	tmp[1] = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos)
 
 	for key := range tmp[0] {
 		if _, exists := tmp[1][key]; exists {

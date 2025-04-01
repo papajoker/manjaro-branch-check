@@ -19,10 +19,9 @@ var (
 	Project   string
 )
 
-func tree(config Config, cacheDir string) {
-	path := filepath.Join(os.Getenv("HOME"), ".config", "manjaro-branch-check.yaml")
+func tree(config Config, cacheDir, confFilename string) {
 	fmt.Println("# database:", cacheDir)
-	fmt.Println("# config:  ", path)
+	fmt.Println("# config:  ", confFilename)
 	fmt.Println()
 
 	branches := append(config.Branches, "archlinux")
@@ -35,7 +34,9 @@ func tree(config Config, cacheDir string) {
 					fmt.Println("Error creating directory:", err)
 					continue
 				}
-				fileInfo, _ := os.Stat(dirPath + "/" + repo + ".db")
+				filepath.Join(dirPath, repo+".db")
+
+				fileInfo, _ := os.Stat(filepath.Join(dirPath, repo+".db"))
 				t := fileInfo.ModTime()
 				pkgs := alpm.Load(dirPath, []string{repo})
 				sep := Theme(branch) + "-" + Theme("")
@@ -61,7 +62,8 @@ var treeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		cacheDir := ctx.Value("cacheDir").(string)
-		tree(ctx.Value("configVars").(Config), cacheDir)
+		confFilename := ctx.Value("confFilename").(string)
+		tree(ctx.Value("configVars").(Config), cacheDir, confFilename)
 	},
 }
 

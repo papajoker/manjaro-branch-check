@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mbc/cmd/alpm"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/google/generative-ai-go/genai"
@@ -75,7 +76,7 @@ var infoCmd = &cobra.Command{
 		repo := ""
 		for _, branch := range branches {
 			fmt.Println(Theme(branch) + branch + Theme(""))
-			pkgs := alpm.Load(cacheDir+"/"+branch+"/sync", conf.Repos)
+			pkgs := alpm.Load(filepath.Join(cacheDir, branch, "sync"), conf.Repos)
 			pkg := pkgs[pkgName]
 			if pkg != nil {
 				fmt.Println(pkg)

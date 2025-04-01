@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"mbc/cmd/alpm"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -60,8 +61,9 @@ func diff(config Config, cacheDir string, branches []string) {
 	fmt.Printf("%-61s / %s\n", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
 	var tmp [2]alpm.Packages
 	var pkgs [2][]string
-	tmp[0] = alpm.Load(cacheDir+"/"+branches[0]+"/sync", config.Repos)
-	tmp[1] = alpm.Load(cacheDir+"/"+branches[1]+"/sync", config.Repos)
+
+	tmp[0] = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos)
+	tmp[1] = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos)
 
 	for key := range tmp[0] {
 		if _, exists := tmp[1][key]; !exists {
