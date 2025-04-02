@@ -6,9 +6,9 @@
 Manjaro Multi Branch packages Navigator
 use four branches with same config (archlinux, unstable, testing, stable)
 
-Which packages are new to a branch? (diff)
-Which packages disappear? (diff)
-What are the version differences between branches? (info, version)
+- Which packages are new to a branch? (diff)
+- Which packages disappear? (diff)
+- What are the version differences between branches? (info, version)
 
 ```
 Usage:
