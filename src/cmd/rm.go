@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -14,11 +15,30 @@ var rmCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		cacheDir := ctx.Value("cacheDir").(string)
+		confFilename := ctx.Value("confFilename").(string)
 		err := os.RemoveAll(cacheDir)
+		//var err error = nil
 		if err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println("Directory", cacheDir, "removed successfully")
+		}
+
+		execPath, err := os.Executable()
+		if err != nil {
+			return
+		}
+
+		var response string
+		fmt.Print("\nDelete this script and configuration ? (y/N) : ")
+		if _, err = fmt.Scanln(&response); err != nil {
+			return
+		}
+		response = strings.ToLower(response)
+		switch response {
+		case "y", "o":
+			os.Remove(confFilename)
+			os.Remove(execPath)
 		}
 	},
 }
