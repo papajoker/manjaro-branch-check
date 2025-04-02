@@ -2,7 +2,6 @@ package alpm
 
 import (
 	"archive/tar"
-	"bytes"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -33,11 +32,9 @@ type (
 
 // parse desc file content
 func (p *Package) set(desc string) bool {
-	tmpdesc := strings.Split(desc, "\n\n")
-	//adesc := make(tdesc)
-	adesc := make(tdesc, len(tmpdesc))
-	for i := range tmpdesc {
-		tmp := strings.Split(tmpdesc[i], "\n")
+	adesc := make(tdesc)
+	for _, block := range strings.Split(desc, "\n\n") {
+		tmp := strings.Split(block, "\n")
 		if len(tmp) == 0 || len(tmp[0]) < 5 {
 			continue
 		}
@@ -82,7 +79,7 @@ func getFieldString(adesc tdesc, key string) string {
 	if !ok || len(values) < 1 {
 		return ""
 	}
-	return strings.TrimSpace(adesc[key][0])
+	return strings.TrimSpace(values[0])
 }
 
 /*
@@ -141,16 +138,15 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string) Packages {
 			continue
 		}
 
-		buf := new(bytes.Buffer)
-
-		if _, err := io.Copy(buf, tarReader); err != nil && err != io.EOF {
+		data, err := io.ReadAll(tarReader)
+		if err != nil {
 			fmt.Fprintln(os.Stderr, errMsg, err.Error())
-			log.Fatalf("ExtractTarGz:  failed: %s", err.Error())
+			break
 		}
 
 		pkg := Package{REPO: repo}
-		if pkg.set(buf.String()) {
-			if _, ok := pkgs["pkg.NAME"]; ok {
+		if pkg.set(string(data)) {
+			if _, ok := pkgs[pkg.NAME]; ok {
 				fmt.Fprintf(os.Stderr, "\t # %s : %s\n", gotext.Get("ignore duplicate"), pkg.NAME)
 			} else {
 				pkgs[pkg.NAME] = &pkg
@@ -167,7 +163,7 @@ func Load(dirPath string, repos []string) (pkgs Packages) {
 		nb := len(pkgs)
 		f, err := os.Open(filepath.Join(dirPath, repo+".db"))
 		if err != nil {
-			fmt.Printf("Error: can't read file %s\n", filepath.Join(dirPath, repo+".db"))
+			fmt.Fprintf(os.Stderr, "Error: can't read file %s\n", filepath.Join(dirPath, repo+".db"))
 			//os.Exit(1)
 			continue
 		}
@@ -180,7 +176,8 @@ func Load(dirPath string, repos []string) (pkgs Packages) {
 			if strings.Contains(dirPath, "/var/lib/") {
 				sync = "local"
 			}
-			fmt.Printf(
+			fmt.Fprintf(
+				os.Stderr,
 				"%s: '%s' %s, %s\n",
 				gotext.Get("warning"),
 				repo, sync,
