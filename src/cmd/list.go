@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -54,6 +55,11 @@ func listP(packagers *[]listResult, config Config, cacheDir string, branch strin
 	return max
 }
 
+func grayEmail(s string) string {
+	s = strings.Replace(s, "<", ColorGray+"<", 1)
+	return strings.Replace(s, ">", ">"+ColorNone, 1)
+}
+
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
@@ -68,8 +74,7 @@ var listCmd = &cobra.Command{
 		max := listP(&packagers, conf, cacheDir, FlagBranches.toSlice()[0]) + 1
 
 		for _, packager := range packagers {
-			//TODO gray color for email
-			fmt.Printf("%-"+strconv.Itoa(max)+"s %5d\n", packager.name, packager.count)
+			fmt.Printf("%-"+strconv.Itoa(max+10)+"s %5d\n", grayEmail(packager.name), packager.count)
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {

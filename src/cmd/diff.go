@@ -128,7 +128,6 @@ lib32-gamescope-plus                               /
 		max, l0, l1 := diff(&diffs, conf, cacheDir, branches)
 		fmt.Printf("%-"+strconv.Itoa(max+11)+"s / %s\n", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
 		for _, d := range diffs {
-			//TODO gray color for email
 			fmt.Printf("%-"+strconv.Itoa(max)+"s / %s\n", d.first, d.second)
 		}
 		fmt.Println()
