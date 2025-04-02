@@ -235,6 +235,6 @@ func init() {
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
-	versionCmd.Flags().BoolVarP(&FlagDowngrade, "downgrade", "", FlagDowngrade, "display only downgrade up")
+	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, "display only downgrade up")
 	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", "name filter (regex)")
 }

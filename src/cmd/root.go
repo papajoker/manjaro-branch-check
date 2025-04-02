@@ -106,6 +106,10 @@ What are the version differences between branches? (info, version)
 		}
 		return err
 	},
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
+		updateCmd.Run(cmd, []string{"silent"})
+	},
 }
 
 func Execute() {

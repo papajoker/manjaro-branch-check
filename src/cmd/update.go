@@ -91,7 +91,7 @@ func createConfigPacman(directory string, repos []string) error {
 	return nil
 }
 
-func update(config Config) {
+func update(config Config, silent bool) {
 	/*config, err := loadConfig()
 	if err != nil {
 		fmt.Println("Error loading configuration:", err)
@@ -101,6 +101,11 @@ func update(config Config) {
 	cacheBase := filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check")
 
 	var wg sync.WaitGroup
+
+	var out io.Writer = os.Stdout
+	if silent {
+		out = io.Discard
+	}
 
 	var branch string
 	for _, url := range config.Urls {
@@ -115,11 +120,11 @@ func update(config Config) {
 						finalURL := strings.ReplaceAll(url, "$branch", branch)
 						finalURL = strings.ReplaceAll(finalURL, "$repo", repo)
 						finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-						fmt.Println(finalURL, Theme(branch)+"..."+Theme(""))
+						fmt.Fprintln(out, finalURL, Theme(branch)+"..."+Theme(""))
 
 						dirPath := filepath.Join(cacheBase, branch, "sync")
 						if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-							fmt.Println("Error creating directory:", err)
+							fmt.Fprintln(out, "Error creating directory:", err)
 							continue
 						}
 
@@ -127,7 +132,7 @@ func update(config Config) {
 
 						shouldDownload, err := shouldDownload(finalURL, filePath)
 						if err != nil {
-							fmt.Println("Error checking file:", err)
+							fmt.Fprintln(out, "Error checking file:", err)
 							continue
 						}
 
@@ -136,9 +141,9 @@ func update(config Config) {
 							go func(url, path, branch string) {
 								defer wg.Done()
 								if err := downloadFile(url, path); err != nil {
-									fmt.Println("Download error:", err)
+									fmt.Fprintln(out, "Download error:", err)
 								} else {
-									fmt.Println(Theme(branch)+"Downloaded:", Theme(""), path)
+									fmt.Fprintln(out, Theme(branch)+"Downloaded:", Theme(""), path)
 								}
 							}(finalURL, filePath, branch)
 						}
@@ -156,11 +161,11 @@ func update(config Config) {
 					//finalURL := strings.ReplaceAll(url, "$branch", branch)
 					finalURL := strings.ReplaceAll(url, "$repo", repo)
 					finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-					fmt.Println(finalURL, Theme(branch)+"..."+Theme(""))
+					fmt.Fprintln(out, finalURL, Theme(branch)+"..."+Theme(""))
 
 					dirPath := filepath.Join(cacheBase, branch, "sync")
 					if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-						fmt.Println("Error creating directory:", err)
+						fmt.Fprintln(out, "Error creating directory:", err)
 						continue
 					}
 
@@ -168,7 +173,7 @@ func update(config Config) {
 
 					shouldDownload, err := shouldDownload(finalURL, filePath)
 					if err != nil {
-						fmt.Println("Error checking file:", err)
+						fmt.Fprintln(out, "Error checking file:", err)
 						continue
 					}
 
@@ -177,9 +182,9 @@ func update(config Config) {
 						go func(url, path, branch string) {
 							defer wg.Done()
 							if err := downloadFile(url, path); err != nil {
-								fmt.Println("Download error:", err)
+								fmt.Fprintln(out, "Download error:", err)
 							} else {
-								fmt.Println(Theme(branch)+"Downloaded:", Theme(""), path)
+								fmt.Fprintln(out, Theme(branch)+"Downloaded:", Theme(""), path)
 							}
 						}(finalURL, filePath, branch)
 					}
@@ -188,16 +193,21 @@ func update(config Config) {
 		}
 	}
 	wg.Wait()
+	if silent {
+		fmt.Println("\n## End auto update")
+	}
 }
 
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
-	Use:   "update",
-	Short: "Update repos",
-	Long:  `Update Manjaro and Archlinux pacman databases`,
+	Use:     "update",
+	Aliases: []string{"upgrade", "up"},
+	Short:   "Update repos",
+	Long:    `Update Manjaro and Archlinux pacman databases`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		update(ctx.Value("configVars").(Config))
+		silent := len(args) > 0 && args[0] == "silent"
+		update(ctx.Value("configVars").(Config), silent)
 	},
 }
 
