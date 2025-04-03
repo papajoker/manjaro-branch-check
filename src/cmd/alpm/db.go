@@ -21,17 +21,18 @@ type (
 	Package struct {
 		NAME      string
 		VERSION   string
-		DESC      string
 		REPO      string
 		BUILDDATE time.Time
 		PACKAGER  string
+		URL       string
+		DESC      string
 	}
 
 	Packages map[string]*Package
 )
 
 // parse desc file content
-func (p *Package) set(desc string) bool {
+func (p *Package) set(desc string, long bool) bool {
 	adesc := make(tdesc)
 	for _, block := range strings.Split(desc, "\n\n") {
 		tmp := strings.Split(block, "\n")
@@ -51,8 +52,10 @@ func (p *Package) set(desc string) bool {
 	p.NAME = getFieldString(adesc, "NAME")
 	p.BUILDDATE = getFieldDate(adesc, "BUILDDATE")
 	p.PACKAGER = getFieldString(adesc, "PACKAGER")
-	//p.DESC = getFieldString(adesc, "DESC")
-	//p.URL = getFieldString(adesc, "URL")
+	if long {
+		p.DESC = getFieldString(adesc, "DESC")
+		p.URL = getFieldString(adesc, "URL")
+	}
 	//p.REPLACES = getFieldArray(adesc, "REPLACES")
 	//p.PROVIDES = getFieldArray(adesc, "PROVIDES")
 	return true
@@ -65,14 +68,12 @@ func (p Package) String() string {
  Date:     %s`, p.NAME, p.VERSION, d)
 }
 
-/*
 func (p Package) Desc(maxi int) string {
 	if maxi > len(p.DESC) {
 		return p.DESC
 	}
 	return p.DESC[:maxi-1] + "…"
 }
-*/
 
 func getFieldString(adesc tdesc, key string) string {
 	values, ok := adesc[key]
@@ -110,7 +111,7 @@ func getFieldDate(adesc tdesc, key string) time.Time {
 	return time.Time{}
 }
 
-func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string) Packages {
+func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, long bool) Packages {
 
 	errMsg := gotext.Get("Error")
 
@@ -145,7 +146,7 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string) Packages {
 		}
 
 		pkg := Package{REPO: repo}
-		if pkg.set(string(data)) {
+		if pkg.set(string(data), long) {
 			if _, ok := pkgs[pkg.NAME]; ok {
 				fmt.Fprintf(os.Stderr, "\t # %s : %s\n", gotext.Get("ignore duplicate"), pkg.NAME)
 			} else {
@@ -157,7 +158,7 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string) Packages {
 }
 
 // load one branch
-func Load(dirPath string, repos []string) (pkgs Packages) {
+func Load(dirPath string, repos []string, long bool) (pkgs Packages) {
 	pkgs = make(Packages, 5000)
 	for _, repo := range repos {
 		nb := len(pkgs)
@@ -168,7 +169,7 @@ func Load(dirPath string, repos []string) (pkgs Packages) {
 			continue
 		}
 
-		pkgs = ExtractTarGz(f, pkgs, repo)
+		pkgs = ExtractTarGz(f, pkgs, repo, long)
 		f.Close()
 
 		if len(pkgs)-nb == 0 {

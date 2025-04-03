@@ -38,7 +38,7 @@ func tree(config Config, cacheDir, confFilename string) {
 
 				fileInfo, _ := os.Stat(filepath.Join(dirPath, repo+".db"))
 				t := fileInfo.ModTime()
-				pkgs := alpm.Load(dirPath, []string{repo})
+				pkgs := alpm.Load(dirPath, []string{repo}, false)
 				sep := Theme(branch) + "-" + Theme("")
 				fmt.Printf("  %s %-10s %6d    (%s)\n", sep, repo, len(pkgs), t.Format("2006-01-02 15:04"))
 			}
