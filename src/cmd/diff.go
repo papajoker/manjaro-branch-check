@@ -49,6 +49,23 @@ func (p Branch) toSlice() []string {
 	}
 	return result
 }
+func (p *Branch) Set(branch string) {
+	if len(branch) < 1 {
+		return
+	}
+	first := string(branch[0])
+	switch first {
+	case "s":
+		p.FlagStable = true
+	case "t":
+		p.FlagTesting = true
+	case "u":
+		p.FlagUnstable = true
+	case "a":
+		p.FlagArchlinux = true
+	}
+
+}
 
 var (
 	FlagStable    bool = false

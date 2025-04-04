@@ -54,7 +54,7 @@ pacman -Sl: List :
 		cachePath := ctx.Value("cacheDir").(string)
 		branch := FlagBranches.toSlice()[0]
 		cachePath = filepath.Join(cachePath, branch, "pacman.conf")
-		fmt.Println("run ...", cachePath)
+		//fmt.Println("run ...", cachePath)
 
 		search := ""
 		if len(args) > 0 {
