@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/spf13/cobra"
@@ -112,52 +114,81 @@ var infoCmd = &cobra.Command{
 	Args:       cobra.MinimumNArgs(1),
 	ArgAliases: []string{"package"},
 	Run: func(cmd *cobra.Command, args []string) {
-		flags := cmd.Flags()
-		flags.Bool("test", false, "test flag") // ? arg optionel
-
-		pkgName := strings.TrimSpace(strings.ToLower(args[0]))
-		if pkgName == "" {
-			fmt.Fprintln(os.Stderr, "Empty package name")
-			os.Exit(2)
-		}
-
 		ctx := cmd.Context()
 		conf := ctx.Value("configVars").(Config)
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches := append(conf.Branches, "archlinux")
 
-		repo := ""
+		if len(args) >= 0 && args[0] == "-" {
+			args = []string{}
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Split(bufio.ScanWords)
+			for scanner.Scan() {
+				word := strings.TrimSpace(scanner.Text())
+				if len(word) > 1 {
+					args = append(args, word)
+				}
+			}
+		}
+
 		var warnings []string
+		pkgs := make(map[string]alpm.Packages, len(branches))
 		for _, branch := range branches {
-			fmt.Println(Theme(branch) + branch + Theme(""))
-			pkgs, warns := alpm.Load(filepath.Join(cacheDir, branch, "sync"), conf.Repos, branch, false)
+			p, warns := alpm.Load(filepath.Join(cacheDir, branch, "sync"), conf.Repos, branch, false)
+			pkgs[branch] = p
 			if warns != nil {
 				warnings = append(warnings, warns...)
 			}
-			pkg := pkgs[pkgName]
-			if pkg != nil {
-				fmt.Println(pkg)
-				repo = pkg.REPO
-			} else {
-				fmt.Println(" ?")
+		}
+
+		for i, arg := range args {
+			pkgName := strings.TrimSpace(strings.ToLower(arg))
+			if pkgName == "" {
+				fmt.Fprintln(os.Stderr, "Empty package name")
+				os.Exit(2)
+			}
+			fmt.Println(pkgName)
+
+			repo := ""
+			for _, branch := range branches {
+				fmt.Println("  ", Theme(branch)+branch+Theme(""))
+				pkg := pkgs[branch][pkgName]
+				if pkg != nil {
+					d := time.Now().Sub(pkg.BUILDDATE)
+					days := ""
+					if d.Hours() >= 24 {
+						days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
+					}
+					fmt.Printf("      Version:  %s\n", pkg.VERSION)
+					fmt.Printf("      Date:     %s\t%s\n", pkg.BUILDDATE.Format("06-01-02 15:04"), days)
+					//fmt.Println(pkg)
+					repo = pkg.REPO
+				} else {
+					fmt.Println("      ?")
+				}
+			}
+			if FlagInstalled {
+				getInstalled(pkgName)
+			}
+			if len(FlagDetailInfo.value) > 0 {
+				fmt.Println()
+				FlagBranches.Set(string(FlagDetailInfo.value))
+				FlagInfo = true
+				var args = []string{pkgName}
+				pacmanCmd.Run(cmd, args)
+			}
+			if FlagIA {
+				geminiInformation(pkgName, repo)
+			}
+			fmt.Println()
+
+			if i > 6 {
+				break
 			}
 		}
 		if len(warnings) > 0 {
 			fmt.Fprintln(os.Stderr)
 			fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", strings.Join(warnings, "  "))
-		}
-		if FlagInstalled {
-			getInstalled(pkgName)
-		}
-		if len(FlagDetailInfo.value) > 0 {
-			fmt.Println()
-			FlagBranches.Set(string(FlagDetailInfo.value))
-			FlagInfo = true
-			var args = []string{pkgName}
-			pacmanCmd.Run(cmd, args)
-		}
-		if FlagIA {
-			geminiInformation(pkgName, repo)
 		}
 	},
 }
