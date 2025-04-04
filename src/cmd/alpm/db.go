@@ -111,14 +111,15 @@ func getFieldDate(adesc tdesc, key string) time.Time {
 	return time.Time{}
 }
 
-func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, long bool) Packages {
+func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, branch string, long bool) (Packages, []string) {
 
 	errMsg := gotext.Get("Error")
+	warnings := []string{}
 
 	uncompressedStream, err := gzip.NewReader(gzipStream)
 	if err != nil {
 		fmt.Println(errMsg, err.Error())
-		return pkgs
+		return pkgs, warnings
 	}
 	defer uncompressedStream.Close()
 
@@ -148,17 +149,19 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, long bool) P
 		pkg := Package{REPO: repo}
 		if pkg.set(string(data), long) {
 			if _, ok := pkgs[pkg.NAME]; ok {
-				fmt.Fprintf(os.Stderr, "# %s : %s (%s)\n", gotext.Get("ignore duplicate"), pkg.NAME, pkg.REPO)
+				warnings = append(warnings,
+					fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), pkg.NAME, branch, pkg.REPO),
+				)
 			} else {
 				pkgs[pkg.NAME] = &pkg
 			}
 		}
 	}
-	return pkgs
+	return pkgs, warnings
 }
 
 // load one branch
-func Load(dirPath string, repos []string, long bool) (pkgs Packages) {
+func Load(dirPath string, repos []string, branch string, long bool) (pkgs Packages, warnings []string) {
 	pkgs = make(Packages, 5000)
 	for _, repo := range repos {
 		nb := len(pkgs)
@@ -169,7 +172,11 @@ func Load(dirPath string, repos []string, long bool) (pkgs Packages) {
 			continue
 		}
 
-		pkgs = ExtractTarGz(f, pkgs, repo, long)
+		var warn []string
+		pkgs, warn = ExtractTarGz(f, pkgs, repo, branch, long)
+		if warn != nil {
+			warnings = append(warnings, warn...)
+		}
 		f.Close()
 
 		if len(pkgs)-nb == 0 {
@@ -186,5 +193,5 @@ func Load(dirPath string, repos []string, long bool) (pkgs Packages) {
 			)
 		}
 	}
-	return pkgs
+	return pkgs, warnings
 }

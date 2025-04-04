@@ -127,9 +127,13 @@ var infoCmd = &cobra.Command{
 		branches := append(conf.Branches, "archlinux")
 
 		repo := ""
+		var warnings []string
 		for _, branch := range branches {
 			fmt.Println(Theme(branch) + branch + Theme(""))
-			pkgs := alpm.Load(filepath.Join(cacheDir, branch, "sync"), conf.Repos, false)
+			pkgs, warns := alpm.Load(filepath.Join(cacheDir, branch, "sync"), conf.Repos, branch, false)
+			if warns != nil {
+				warnings = append(warnings, warns...)
+			}
 			pkg := pkgs[pkgName]
 			if pkg != nil {
 				fmt.Println(pkg)
@@ -137,6 +141,10 @@ var infoCmd = &cobra.Command{
 			} else {
 				fmt.Println(" ?")
 			}
+		}
+		if len(warnings) > 0 {
+			fmt.Fprintln(os.Stderr)
+			fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", strings.Join(warnings, "  "))
 		}
 		if FlagInstalled {
 			getInstalled(pkgName)

@@ -95,8 +95,8 @@ func diff(diffs *[]diffResult, config Config, cacheDir string, branches []string
 	var tmp [2]alpm.Packages
 	var pkgs [2][]string
 
-	tmp[0] = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos, long)
-	tmp[1] = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos, long)
+	tmp[0], _ = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos, branches[0], long)
+	tmp[1], _ = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos, branches[1], long)
 
 	for key := range tmp[0] {
 		if _, exists := tmp[1][key]; !exists {

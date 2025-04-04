@@ -32,7 +32,7 @@ func listP(packagers *[]listResult, config Config, cacheDir string, branch strin
 	fmt.Println()
 
 	items := make(map[string]int)
-	pkgs := alpm.Load(filepath.Join(cacheDir, branch, "sync"), config.Repos, false)
+	pkgs, _ := alpm.Load(filepath.Join(cacheDir, branch, "sync"), config.Repos, branch, false)
 	for _, pkg := range pkgs {
 		if reg.MatchString(pkg.PACKAGER) {
 			items[pkg.PACKAGER] += 1

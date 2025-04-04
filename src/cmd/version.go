@@ -113,8 +113,8 @@ func highlightDiff(va, vb string, color string) string {
 func version(versions *[]versionResult, config Config, cacheDir string, branches []string) (int, int, string) {
 	var tmp [2]alpm.Packages
 	tmpkeys := make(map[string]bool)
-	tmp[0] = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos, false)
-	tmp[1] = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos, false)
+	tmp[0], _ = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos, branches[0], false)
+	tmp[1], _ = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos, branches[1], false)
 
 	for key := range tmp[0] {
 		if _, exists := tmp[1][key]; exists {
