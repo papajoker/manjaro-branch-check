@@ -148,7 +148,7 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, long bool) P
 		pkg := Package{REPO: repo}
 		if pkg.set(string(data), long) {
 			if _, ok := pkgs[pkg.NAME]; ok {
-				fmt.Fprintf(os.Stderr, "\t # %s : %s\n", gotext.Get("ignore duplicate"), pkg.NAME)
+				fmt.Fprintf(os.Stderr, "# %s : %s (%s)\n", gotext.Get("ignore duplicate"), pkg.NAME, pkg.REPO)
 			} else {
 				pkgs[pkg.NAME] = &pkg
 			}
