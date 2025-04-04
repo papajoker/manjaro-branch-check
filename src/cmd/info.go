@@ -119,7 +119,7 @@ var infoCmd = &cobra.Command{
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches := append(conf.Branches, "archlinux")
 
-		if len(args) >= 0 && args[0] == "-" {
+		if len(args) > 0 && args[0] == "-" {
 			args = []string{}
 			scanner := bufio.NewScanner(os.Stdin)
 			scanner.Split(bufio.ScanWords)

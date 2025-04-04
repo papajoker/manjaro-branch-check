@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
@@ -22,9 +23,6 @@ func execPacman(cmd []string, branch string) {
 	fmt.Println(Theme(branch) + branch + Theme(""))
 	fmt.Println()
 
-	if FlagQuiet {
-		cmd = append(cmd, "-q")
-	}
 	run := exec.Command("/usr/bin/pacman", cmd...) //, "--debug")
 	run.Stdout = os.Stdout
 	err := run.Run()
@@ -54,28 +52,48 @@ pacman -Sl: List :
 		cachePath := ctx.Value("cacheDir").(string)
 		branch := FlagBranches.toSlice()[0]
 		cachePath = filepath.Join(cachePath, branch, "pacman.conf")
-		//fmt.Println("run ...", cachePath)
+
+		if len(args) > 0 && args[0] == "-" {
+			args = []string{}
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Split(bufio.ScanWords)
+			for scanner.Scan() {
+				word := strings.TrimSpace(scanner.Text())
+				if len(word) > 1 {
+					args = append(args, word)
+				}
+			}
+		}
 
 		search := ""
 		if len(args) > 0 {
 			search = strings.TrimSpace(strings.ToLower(args[0]))
 		}
 
-		args = []string{}
+		runargs := []string{}
 		if FlagSearch {
-			args = []string{"-Ss", search, "--config", cachePath}
+			runargs = []string{"-Ss", search}
 		}
 		if FlagInfo {
 			if len(search) > 0 {
-				args = []string{"-Sii", search, "--config", cachePath}
+				runargs = []string{"-Sii"}
+				if FlagQuiet {
+					runargs = []string{"-Si"}
+				}
+				for _, arg := range args {
+					runargs = append(runargs, strings.TrimSpace(strings.ToLower(arg)))
+				}
 			} else {
-				args = []string{"-Si", "--config", cachePath}
+				runargs = []string{"-Si"}
 			}
 		}
 		if FlagList {
-			args = []string{"-Sl", "--config", cachePath}
+			runargs = []string{"-Sl"}
 		}
-		execPacman(args, branch)
+		if FlagQuiet {
+			runargs = append(runargs, "-q")
+		}
+		execPacman(append(runargs, "--config", cachePath), branch)
 	},
 }
 
