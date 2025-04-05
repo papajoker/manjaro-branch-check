@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -106,11 +107,64 @@ func getInstalled(pkg string) {
 
 }
 
+// cobra arg is regex or not ?
+func isPlainString(s string) bool {
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z':
+			continue
+		case r >= '0' && r <= '9':
+			continue
+		case r == '-' || r == '.' || r == '_':
+			continue
+		default:
+			return false
+		}
+	}
+	return len(s) > 0
+}
+
+// search packages in all branchies (if regex test all entries)
+func getKeys(pkgs map[string]alpm.Packages, search string) (keys []string) {
+	search = strings.ToLower(search)
+	reg, err := regexp.Compile(strings.TrimSpace(search))
+	if err != nil {
+		return
+	}
+	for _, branch := range pkgs {
+		if isPlainString(search) {
+			if branch[search] != nil {
+				if !slices.Contains(keys, search) {
+					return append(keys, search)
+				}
+			}
+			return keys
+		}
+		for k, _ := range branch {
+			if reg.MatchString(k) {
+				if slices.Contains(keys, k) {
+					continue
+				}
+				keys = append(keys, k)
+			}
+		}
+	}
+	return
+}
+
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
-	Use:        "info pakageName",
-	Short:      "A brief description of your package",
-	Long:       ``,
+	Use:   "info pakageName(s)",
+	Short: "A brief description of your package",
+	Long: `Compare versions for one or more packages.
+Returns version differences across branches, if differences exist.
+
+ex:
+	info pacman grub
+	info 'linux\d{2}$' 'linux\d..$' '^linux\d.*-rt$'
+	info pacman --detail t		# run at end pacman -Si in branch Testing
+	echo -e "pacman grub" | mbc info -
+	`,
 	Args:       cobra.MinimumNArgs(1),
 	ArgAliases: []string{"package"},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -147,43 +201,58 @@ var infoCmd = &cobra.Command{
 				fmt.Fprintln(os.Stderr, "Empty package name")
 				os.Exit(2)
 			}
-			fmt.Println(pkgName)
-
 			repo := ""
-			for _, branch := range branches {
-				fmt.Println("  ", Theme(branch)+branch+Theme(""))
-				pkg := pkgs[branch][pkgName]
-				if pkg != nil {
-					d := time.Now().Sub(pkg.BUILDDATE)
-					days := ""
-					if d.Hours() >= 24 {
-						days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
-					}
-					fmt.Printf("      Version:  %s\n", pkg.VERSION)
-					fmt.Printf("      Date:     %s\t%s\n", pkg.BUILDDATE.Format("06-01-02 15:04"), days)
-					//fmt.Println(pkg)
-					repo = pkg.REPO
-				} else {
-					fmt.Println("      ?")
-				}
-			}
-			if FlagInstalled {
-				getInstalled(pkgName)
-			}
-			if len(FlagDetailInfo.value) > 0 {
-				fmt.Println()
-				FlagBranches.Set(string(FlagDetailInfo.value))
-				FlagInfo = true
-				var args = []string{pkgName}
-				pacmanCmd.Run(cmd, args)
-			}
-			if FlagIA {
-				geminiInformation(pkgName, repo)
-			}
-			fmt.Println()
 
-			if i > 6 {
-				break
+			for _, pkgName = range getKeys(pkgs, pkgName) {
+				fmt.Printf("\n%s", pkgName)
+				oldVersion := ""
+				for _, branch := range branches {
+					//fmt.Println("  ", Theme(branch)+branch+Theme(""))
+					pkg := pkgs[branch][pkgName]
+					if pkg != nil {
+						if pkg.VERSION == oldVersion {
+							continue
+						} else {
+
+						}
+
+						d := time.Now().Sub(pkg.BUILDDATE)
+						days := ""
+						if d.Hours() >= 24 {
+							days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
+						}
+						ver := pkg.VERSION
+						if oldVersion != "" {
+							ver = highlightDiff(oldVersion, pkg.VERSION, Theme(branch))
+						}
+						oldVersion = pkg.VERSION
+						fmt.Println()
+						fmt.Printf("   Version:  %-11s %s\n", padRightANSI(Theme(branch)+branch+Theme(""), 11), ver)
+						fmt.Printf("   Date:     %-11s %s\t%s\n", " ", pkg.BUILDDATE.Format("06-01-02 15:04"), days)
+
+						repo = pkg.REPO
+					} /*else {
+						fmt.Printf("\n   -         %s\n", Theme(branch)+branch+Theme(""))
+					}*/
+
+				}
+				if FlagInstalled {
+					getInstalled(pkgName)
+				}
+				if len(FlagDetailInfo.value) > 0 {
+					fmt.Println()
+					FlagBranches.Set(string(FlagDetailInfo.value))
+					FlagInfo = true
+					var args = []string{pkgName}
+					pacmanCmd.Run(cmd, args)
+				}
+				if FlagIA {
+					geminiInformation(pkgName, repo)
+				}
+
+				if i > 36 {
+					break
+				}
 			}
 		}
 		if len(warnings) > 0 {
