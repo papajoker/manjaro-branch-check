@@ -80,7 +80,6 @@ var rootCmd = &cobra.Command{
 	Short: "Play with Manjaro Repos",
 	CompletionOptions: cobra.CompletionOptions{
 		HiddenDefaultCmd: true, // hides cmd
-		// DisableDefaultCmd: true, // removes cmd
 	},
 	Long: `Manjaro Multi Branch packages Navigator
 use four branches with same config (archlinux, unstable, testing, stable)

@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"mbc/cmd/alpm"
 	"strings"
 
@@ -18,6 +20,60 @@ var (
 	GitID     string
 	Project   string
 )
+
+func checkVersion(filename, version string) (bool, error) {
+	inFile, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer inFile.Close()
+
+	scanner := bufio.NewScanner(inFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) < 5 {
+			return false, nil
+		}
+		if line[1:] == version {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
+func setCompletion() {
+
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+
+	var up = func(filename string, gen func(buf io.Writer) error) {
+		ok, err := checkVersion(filename, Version)
+		if err != nil {
+			return
+		}
+		if ok {
+			return
+		}
+
+		outFile, err := os.Create(filename)
+		if err != nil {
+			return
+		}
+		defer outFile.Close()
+
+		outFile.Write([]byte("#" + Version + "\n"))
+		gen(outFile)
+	}
+
+	// Version = "0.1.1" // for test with go run
+
+	up(filepath.Join(os.Getenv("HOME"), ".config", "fish", "completions", "mbc.fish"), func(buf io.Writer) error {
+		return rootCmd.GenFishCompletion(buf, true)
+	})
+	// ?? .local/share}/bash-completion}/completions
+	up(filepath.Join(os.Getenv("HOME"), ".local", "share", "bash-completion", "completions", "mbc"), func(buf io.Writer) error {
+		return rootCmd.GenBashCompletion(buf)
+	})
+}
 
 func tree(config Config, cacheDir, confFilename string) {
 	fmt.Println("# database:", cacheDir)
@@ -69,4 +125,5 @@ var treeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(treeCmd)
+	setCompletion()
 }
