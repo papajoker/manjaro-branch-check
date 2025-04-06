@@ -73,6 +73,11 @@ func setCompletion() {
 	up(filepath.Join(os.Getenv("HOME"), ".local", "share", "bash-completion", "completions", "mbc"), func(buf io.Writer) error {
 		return rootCmd.GenBashCompletion(buf)
 	})
+	// ?? ~/.zsh/cache/mbc in manjaro-zsh-config
+	up(filepath.Join(os.Getenv("HOME"), ".zsh", "cache", "mbc"), func(buf io.Writer) error {
+		return rootCmd.GenZshCompletion(buf)
+	})
+
 }
 
 func tree(config Config, cacheDir, confFilename string) {

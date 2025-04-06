@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -39,6 +40,13 @@ var rmCmd = &cobra.Command{
 		case "y", "o":
 			os.Remove(confFilename)
 			os.Remove(execPath)
+
+			completionFile := filepath.Join(os.Getenv("HOME"), ".config", "fish", "completions", "mbc.fish")
+			os.Remove(completionFile)
+			completionFile = filepath.Join(os.Getenv("HOME"), ".local", "share", "bash-completion", "completions", "mbc")
+			os.Remove(completionFile)
+			completionFile = filepath.Join(os.Getenv("HOME"), ".zsh", "cache", "mbc")
+			os.Remove(completionFile)
 		}
 	},
 }
