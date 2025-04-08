@@ -6,6 +6,7 @@ import (
 	"io"
 	"mbc/cmd/alpm"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -80,9 +81,17 @@ func setCompletion() {
 
 }
 
+func toHomeDir(abspath string) string {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return abspath
+	}
+	return strings.Replace(abspath, homeDir, "~", 1)
+}
+
 func tree(config Config, cacheDir, confFilename string) {
-	fmt.Println("# database:", cacheDir)
-	fmt.Println("# config:  ", confFilename)
+	fmt.Println("# database:", toHomeDir(cacheDir))
+	fmt.Println("# config:  ", toHomeDir(confFilename))
 	fmt.Println()
 
 	branches := append(config.Branches, "archlinux")
@@ -98,10 +107,16 @@ func tree(config Config, cacheDir, confFilename string) {
 				filepath.Join(dirPath, repo+".db")
 
 				fileInfo, _ := os.Stat(filepath.Join(dirPath, repo+".db"))
-				t := fileInfo.ModTime()
+				tf := fileInfo.ModTime()
+				d := time.Now().Sub(fileInfo.ModTime())
+				days := ""
+				if d.Hours() >= 48 {
+					days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
+				}
+
 				pkgs, _ := alpm.Load(dirPath, []string{repo}, branch, false)
 				sep := Theme(branch) + "-" + Theme("")
-				fmt.Printf("  %s %-10s %6d    (%s)\n", sep, repo, len(pkgs), t.Format("2006-01-02 15:04"))
+				fmt.Printf("  %s %-10s %6d    (%s)  %s\n", sep, repo, len(pkgs), tf.Format("2006-01-02 15:04"), days)
 			}
 		}
 		fmt.Println("")
