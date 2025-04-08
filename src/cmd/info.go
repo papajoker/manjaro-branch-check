@@ -61,7 +61,7 @@ func (e *branchNaneFlagType) Type() string {
 	return "branch_name"
 }
 
-func geminiInformation(pkg, repo string) {
+func aiInformation(pkg, repo string) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
 	if err != nil {
@@ -140,7 +140,7 @@ func getKeys(pkgs map[string]alpm.Packages, search string) (keys []string) {
 			}
 			return keys
 		}
-		for k, _ := range branch {
+		for k := range branch {
 			if reg.MatchString(k) {
 				if slices.Contains(keys, k) {
 					continue
@@ -222,7 +222,7 @@ ex:
 
 						}
 
-						d := time.Now().Sub(pkg.BUILDDATE)
+						d := time.Since(pkg.BUILDDATE)
 						days := ""
 						if d.Hours() >= 24 {
 							days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
@@ -253,7 +253,7 @@ ex:
 					pacmanCmd.Run(cmd, args)
 				}
 				if FlagIA {
-					geminiInformation(pkgName, repo)
+					aiInformation(pkgName, repo)
 				}
 
 				if i > 36 {
