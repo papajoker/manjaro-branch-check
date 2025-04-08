@@ -171,6 +171,12 @@ ex:
 		ctx := cmd.Context()
 		conf := ctx.Value("configVars").(Config)
 		cacheDir := ctx.Value("cacheDir").(string)
+
+		if updateDateFromFile() >= AutoUpdate {
+			updateCmd.Run(cmd, []string{""})
+			fmt.Println()
+		}
+
 		branches := append(conf.Branches, "archlinux")
 
 		if len(args) > 0 && args[0] == "-" {

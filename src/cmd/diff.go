@@ -167,6 +167,11 @@ lib32-gamescope-plus                               /
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches = FlagBranches.toSlice()
 
+		if updateDateFromFile() >= AutoUpdate {
+			updateCmd.Run(cmd, []string{""})
+			fmt.Println()
+		}
+
 		long := FlagDiffNew || FlagDiffRm
 
 		var diffs []diffResult

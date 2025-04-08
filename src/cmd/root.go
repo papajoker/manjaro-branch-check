@@ -15,6 +15,8 @@ import (
 //go:embed config.yaml
 var embedFS embed.FS
 
+var AutoUpdate int = 2
+
 type Config struct {
 	Branches []string `yaml:"branches"`
 	Arch     []string `yaml:"arch"`
@@ -107,7 +109,6 @@ What are the version differences between branches? (info, version)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
-		updateCmd.Run(cmd, []string{"silent"})
 	},
 }
 

@@ -203,6 +203,11 @@ linux66                              6.6.83-1                     6.6.84-1
 		cacheDir := ctx.Value("cacheDir").(string)
 		branches = FlagBranches.toSlice()
 
+		if updateDateFromFile() >= AutoUpdate {
+			updateCmd.Run(cmd, []string{""})
+			fmt.Println()
+		}
+
 		var versions []versionResult
 		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
 

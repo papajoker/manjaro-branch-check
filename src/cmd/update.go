@@ -13,6 +13,33 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func _getDateFile() string {
+	return filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check", "date")
+}
+
+func updateDateFromFile() int {
+	data, err := os.ReadFile(_getDateFile())
+	if err != nil {
+		return 0
+	}
+	if date, err := time.Parse(time.RFC3339, string(data)); err == nil {
+		d := time.Since(date)
+		return int(d.Hours() / 24)
+	}
+	return 0
+}
+
+func updateDateToFile() error {
+	file, err := os.Create(_getDateFile())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(time.Now().Format(time.RFC3339))
+	return err
+}
+
 func shouldDownload(url, filePath string) (bool, error) {
 	resp, err := http.Head(url)
 	if err != nil {
@@ -92,11 +119,6 @@ func createConfigPacman(directory string, repos []string) error {
 }
 
 func update(config Config, silent bool) {
-	/*config, err := loadConfig()
-	if err != nil {
-		fmt.Println("Error loading configuration:", err)
-		return
-	}*/
 
 	cacheBase := filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check")
 
@@ -196,6 +218,8 @@ func update(config Config, silent bool) {
 	if silent {
 		fmt.Println("\n## End auto update")
 	}
+
+	updateDateToFile()
 }
 
 // updateCmd represents the update command
