@@ -53,16 +53,16 @@ func (p *Package) set(descReader io.Reader, long bool) bool {
 	}
 
 	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
+		line := scanner.Bytes()
+		if len(line) == 0 {
 			flush()
 			continue
 		}
-		if strings.HasPrefix(line, "%") {
+		if len(line) > 0 && line[0] == '%' {
 			flush()
-			key = strings.TrimSuffix(line[1:], "%")
+			key = string(line[1 : len(line)-1])
 		} else {
-			values = append(values, line)
+			values = append(values, string(line))
 		}
 	}
 	flush()
