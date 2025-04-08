@@ -67,8 +67,8 @@ var listCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		conf := ctx.Value("configVars").(Config)
-		cacheDir := ctx.Value("cacheDir").(string)
+		conf := ctx.Value(ctxConfigVars).(Config)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
 
 		var packagers []listResult
 		max := listP(&packagers, conf, cacheDir, FlagBranches.toSlice()[0]) + 1

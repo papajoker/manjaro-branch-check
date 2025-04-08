@@ -280,9 +280,9 @@ var treeCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		cacheDir := ctx.Value("cacheDir").(string)
-		confFilename := ctx.Value("confFilename").(string)
-		tree(ctx.Value("configVars").(Config), cacheDir, confFilename)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
+		confFilename := ctx.Value(ctxConfFilename).(string)
+		tree(ctx.Value(ctxConfigVars).(Config), cacheDir, confFilename)
 	},
 }
 

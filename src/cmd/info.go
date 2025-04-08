@@ -169,8 +169,8 @@ ex:
 	ArgAliases: []string{"package"},
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		conf := ctx.Value("configVars").(Config)
-		cacheDir := ctx.Value("cacheDir").(string)
+		conf := ctx.Value(ctxConfigVars).(Config)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
 
 		if updateDateFromFile() >= AutoUpdate {
 			updateCmd.Run(cmd, []string{""})

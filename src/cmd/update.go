@@ -231,7 +231,7 @@ var updateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		silent := len(args) > 0 && args[0] == "silent"
-		update(ctx.Value("configVars").(Config), silent)
+		update(ctx.Value(ctxConfigVars).(Config), silent)
 	},
 }
 

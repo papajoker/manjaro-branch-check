@@ -49,7 +49,7 @@ pacman -Sl: List :
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		cachePath := ctx.Value("cacheDir").(string)
+		cachePath := ctx.Value(ctxCacheDir).(string)
 		branch := FlagBranches.toSlice()[0]
 		cachePath = filepath.Join(cachePath, branch, "pacman.conf")
 

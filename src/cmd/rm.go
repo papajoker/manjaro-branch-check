@@ -15,8 +15,8 @@ var rmCmd = &cobra.Command{
 	Short: "remove database in ~/.cache/",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		cacheDir := ctx.Value("cacheDir").(string)
-		confFilename := ctx.Value("confFilename").(string)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
+		confFilename := ctx.Value(ctxConfFilename).(string)
 		err := os.RemoveAll(cacheDir)
 		//var err error = nil
 		if err != nil {

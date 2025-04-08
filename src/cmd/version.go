@@ -199,8 +199,8 @@ linux66                              6.6.83-1                     6.6.84-1
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		conf := ctx.Value("configVars").(Config)
-		cacheDir := ctx.Value("cacheDir").(string)
+		conf := ctx.Value(ctxConfigVars).(Config)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
 		branches = FlagBranches.toSlice()
 
 		if updateDateFromFile() >= AutoUpdate {

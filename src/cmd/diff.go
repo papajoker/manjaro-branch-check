@@ -163,8 +163,8 @@ lib32-gamescope-plus                               /
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
-		conf := ctx.Value("configVars").(Config)
-		cacheDir := ctx.Value("cacheDir").(string)
+		conf := ctx.Value(ctxConfigVars).(Config)
+		cacheDir := ctx.Value(ctxCacheDir).(string)
 		branches = FlagBranches.toSlice()
 
 		if updateDateFromFile() >= AutoUpdate {

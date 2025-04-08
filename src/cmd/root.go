@@ -15,7 +15,14 @@ import (
 //go:embed config.yaml
 var embedFS embed.FS
 
-var AutoUpdate int = 2
+type ctxkey int
+
+const AutoUpdate int = 2
+const (
+	ctxConfigVars ctxkey = iota
+	ctxCacheDir
+	ctxConfFilename
+)
 
 type Config struct {
 	Branches []string `yaml:"branches"`
@@ -98,12 +105,12 @@ What are the version differences between branches? (info, version)
 			return err
 		}
 		ctx := context.Background()
-		ctx = context.WithValue(ctx, "configVars", *conf)
-		ctx = context.WithValue(ctx, "cacheDir", filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check"))
-		ctx = context.WithValue(ctx, "confFilename", confFilename)
+		ctx = context.WithValue(ctx, ctxConfigVars, *conf)
+		ctx = context.WithValue(ctx, ctxCacheDir, filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check"))
+		ctx = context.WithValue(ctx, ctxConfFilename, confFilename)
 		cmd.SetContext(ctx)
 		if !(strings.HasPrefix(cmd.Use, "help") || strings.HasPrefix(cmd.Use, "update")) {
-			return cacheIsValid(*conf, ctx.Value("cacheDir").(string))
+			return cacheIsValid(*conf, ctx.Value(ctxCacheDir).(string))
 		}
 		return err
 	},
