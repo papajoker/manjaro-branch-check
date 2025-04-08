@@ -14,7 +14,7 @@ import (
 )
 
 func _getDateFile() string {
-	return filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check", "date")
+	return filepath.Join(Config{}.cache(), "date")
 }
 
 func updateDateFromFile() int {
@@ -120,7 +120,7 @@ func createConfigPacman(directory string, repos []string) error {
 
 func update(config Config, silent bool) {
 
-	cacheBase := filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check")
+	cacheBase := config.cache()
 
 	var wg sync.WaitGroup
 

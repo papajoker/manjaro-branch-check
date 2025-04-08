@@ -27,7 +27,7 @@ var (
 	Project   string
 )
 
-func getLTSFamilies() (map[string]bool, error) {
+func getLTSFamilies() (families map[string]bool) {
 
 	type (
 		Item struct {
@@ -50,18 +50,18 @@ func getLTSFamilies() (map[string]bool, error) {
 		return ""
 	}
 
+	families = make(map[string]bool)
+
 	resp, err := http.Get("https://www.kernel.org/feeds/kdist.xml")
 	if err != nil {
-		return nil, err
+		return families
 	}
 	defer resp.Body.Close()
 
 	var rss RSS
 	if err := xml.NewDecoder(resp.Body).Decode(&rss); err != nil {
-		return nil, err
+		return families
 	}
-
-	families := make(map[string]bool)
 
 	for _, item := range rss.Channel.Items {
 		if strings.Contains(item.Title, "longterm") {
@@ -75,13 +75,12 @@ func getLTSFamilies() (map[string]bool, error) {
 			}
 		}
 	}
-	return families, nil
+	return
 }
 
-func filterLTSKernels(input []string) ([]string, error) {
-	ltsFamilies, err := getLTSFamilies()
-	if err != nil {
-		return nil, err
+func filterLTSKernels(input []string, ltsFamilies map[string]bool) ([]string, error) {
+	if len(ltsFamilies) < 1 {
+		return nil, fmt.Errorf("LTS not found")
 	}
 
 	var result []string
@@ -212,9 +211,13 @@ func toHomeDir(abspath string) string {
 }
 
 func tree(config Config, cacheDir, confFilename string) {
-	fmt.Println("# database:", toHomeDir(cacheDir))
-	fmt.Println("# config:  ", toHomeDir(confFilename))
-	fmt.Println()
+
+	var ltsFamilies map[string]bool
+	ltsChan := make(chan struct{})
+	go func() {
+		defer close(ltsChan)
+		ltsFamilies = getLTSFamilies()
+	}()
 
 	kernels := []string{}
 	branches := append(config.Branches, "archlinux")
@@ -263,13 +266,17 @@ func tree(config Config, cacheDir, confFilename string) {
 		urls = append(urls, before)
 	}
 
+	<-ltsChan
+
 	if len(kernels) > 0 {
-		lts, err := filterLTSKernels(kernels)
+		lts, err := filterLTSKernels(kernels, ltsFamilies)
 		if err == nil {
-			fmt.Println("# LTS: ", strings.Join(lts, ", "), ColorGray+"\t(by kernel.org)"+ColorNone)
+			fmt.Println("# LTS:      ", strings.Join(lts, ", "), ColorGray+"\t(by kernel.org)"+ColorNone)
 		}
 	}
-	fmt.Println("# servers: ", urls)
+	fmt.Println("# servers:  ", strings.Join(urls, ", "))
+	fmt.Println("# database: ", toHomeDir(cacheDir))
+	fmt.Println("# config:   ", toHomeDir(confFilename))
 	fmt.Printf("# %s Version: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 

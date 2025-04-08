@@ -38,7 +38,7 @@ var pacmanCmd = &cobra.Command{
 	Use:   "pacman [packageName]",
 	Short: "run pacman in branch",
 	Long: `run a pacman command as:
-pacman -S* --config '~/.cache/manjaro-branch-check/BRANCH/pacman.conf'
+pacman -S* --config '~/.cache/` + ApplicationID + `/BRANCH/pacman.conf'
 Examples in stable branch.
 pacman -Si: Info :
   -Is package_name

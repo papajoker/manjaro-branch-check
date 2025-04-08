@@ -89,12 +89,6 @@ func aiInformation(pkg, repo string) {
 	fmt.Println()
 	fmt.Println()
 	fmt.Println(resp.Candidates[0].Content.Parts[0])
-	/*fmt.Println()
-	response := fmt.Sprint(resp.Candidates[0].Content.Parts[0])
-	response = strings.ReplaceAll(response, "```", "")
-	response, _ = strings.CutPrefix(response, "text\n")
-	fmt.Println(response)
-	*/
 }
 
 func getInstalled(pkg string) {
@@ -277,8 +271,7 @@ func init() {
 		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, "version installed")
 	}
 
-	confFilename := filepath.Join(os.Getenv("HOME"), ".config", "manjaro-branch-check.yaml")
-	conf, _ := loadConfig(confFilename)
+	conf, _ := loadConfig(Config{}.configFile())
 	FlagDetailInfo = branchNaneFlagType{
 		value:  "",
 		valids: append(conf.Branches, "archlinux"),

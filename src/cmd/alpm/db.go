@@ -2,6 +2,7 @@ package alpm
 
 import (
 	"archive/tar"
+	"bufio"
 	"compress/gzip"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/leonelquinteros/gotext"
@@ -32,21 +34,38 @@ type (
 )
 
 // parse desc file content
-func (p *Package) set(desc string, long bool) bool {
+func (p *Package) set(descReader io.Reader, long bool) bool {
+	scanner := bufio.NewScanner(descReader)
 	adesc := make(tdesc)
-	for _, block := range strings.Split(desc, "\n\n") {
-		tmp := strings.Split(block, "\n")
-		if len(tmp) == 0 || len(tmp[0]) < 5 {
-			continue
-		}
+	var key string
+	var values []string
 
-		idx := strings.TrimRight(tmp[0][1:], "%")
-		if len(tmp) > 1 {
-			adesc[idx] = tmp[1:]
-		} else {
-			adesc[idx] = []string{}
+	flush := func() {
+		if key != "" {
+			descValues := make([]string, len(values))
+			copy(descValues, values)
+			descValues = append([]string(nil), values...)
+			descValues = descValues[:len(values)]
+			adesc[key] = descValues
+			values = values[:0]
+			key = ""
 		}
 	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			flush()
+			continue
+		}
+		if strings.HasPrefix(line, "%") {
+			flush()
+			key = strings.TrimSuffix(line[1:], "%")
+		} else {
+			values = append(values, line)
+		}
+	}
+	flush()
 
 	p.VERSION = getFieldString(adesc, "VERSION")
 	p.NAME = getFieldString(adesc, "NAME")
@@ -56,16 +75,12 @@ func (p *Package) set(desc string, long bool) bool {
 		p.DESC = getFieldString(adesc, "DESC")
 		p.URL = getFieldString(adesc, "URL")
 	}
-	//p.REPLACES = getFieldArray(adesc, "REPLACES")
-	//p.PROVIDES = getFieldArray(adesc, "PROVIDES")
 	return true
 }
 
 func (p Package) String() string {
 	d := p.BUILDDATE.Format("06-01-02 15:04")
-	return fmt.Sprintf(` Name:     %s
- Version:  %s
- Date:     %s`, p.NAME, p.VERSION, d)
+	return fmt.Sprintf(` Name:     %s\n Version:  %s\n Date:     %s`, p.NAME, p.VERSION, d)
 }
 
 func (p Package) Desc(maxi int) string {
@@ -82,18 +97,6 @@ func getFieldString(adesc tdesc, key string) string {
 	}
 	return strings.TrimSpace(values[0])
 }
-
-/*
-func getFieldArray(adesc tdesc, key string) []string {
-	if len(adesc[key]) < 1 {
-		return make([]string, 0)
-	}
-	for k, v := range adesc[key] {
-		adesc[key][k] = strings.TrimSpace(strings.SplitN(v, ":", 2)[0])
-	}
-	return adesc[key][0:]
-}
-*/
 
 func getFieldInt(adesc tdesc, key string) int {
 	if items, ok := adesc[key]; ok && len(items) > 0 {
@@ -112,7 +115,6 @@ func getFieldDate(adesc tdesc, key string) time.Time {
 }
 
 func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, branch string, long bool) (Packages, []string) {
-
 	errMsg := gotext.Get("Error")
 	warnings := []string{}
 
@@ -124,6 +126,10 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, branch strin
 	defer uncompressedStream.Close()
 
 	tarReader := tar.NewReader(uncompressedStream)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	localPkgs := make(Packages)
 
 	for {
 		header, err := tarReader.Next()
@@ -140,58 +146,77 @@ func ExtractTarGz(gzipStream io.Reader, pkgs Packages, repo string, branch strin
 			continue
 		}
 
-		data, err := io.ReadAll(tarReader)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, errMsg, err.Error())
-			break
-		}
-
-		pkg := Package{REPO: repo}
-		if pkg.set(string(data), long) {
-			if _, ok := pkgs[pkg.NAME]; ok {
-				warnings = append(warnings,
-					fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), pkg.NAME, branch, pkg.REPO),
-				)
-			} else {
-				pkgs[pkg.NAME] = &pkg
-			}
-		}
-	}
-	return pkgs, warnings
-}
-
-// load one branch
-func Load(dirPath string, repos []string, branch string, long bool) (pkgs Packages, warnings []string) {
-	pkgs = make(Packages, 5000)
-	for _, repo := range repos {
-		nb := len(pkgs)
-		f, err := os.Open(filepath.Join(dirPath, repo+".db"))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error: can't read file %s\n", filepath.Join(dirPath, repo+".db"))
-			//os.Exit(1)
+		var buf strings.Builder
+		if _, err := io.Copy(&buf, tarReader); err != nil {
 			continue
 		}
 
-		var warn []string
-		pkgs, warn = ExtractTarGz(f, pkgs, repo, branch, long)
-		if warn != nil {
-			warnings = append(warnings, warn...)
-		}
-		f.Close()
-
-		if len(pkgs)-nb == 0 {
-			sync := "sync"
-			if strings.Contains(dirPath, "/var/lib/") {
-				sync = "local"
+		entry := buf.String()
+		wg.Add(1)
+		go func(content string) {
+			defer wg.Done()
+			p := Package{REPO: repo}
+			if p.set(strings.NewReader(content), long) {
+				mu.Lock()
+				if _, ok := localPkgs[p.NAME]; ok {
+					warnings = append(warnings,
+						fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), p.NAME, branch, p.REPO),
+					)
+				} else {
+					localPkgs[p.NAME] = &p
+				}
+				mu.Unlock()
 			}
-			fmt.Fprintf(
-				os.Stderr,
-				"%s: '%s' %s, %s\n",
-				gotext.Get("warning"),
-				repo, sync,
-				gotext.Get("repo empty ? or all packages are ignored"),
-			)
-		}
+		}(entry)
 	}
+	wg.Wait()
+	return localPkgs, warnings
+}
+
+// load one branch in parallel
+func Load(dirPath string, repos []string, branch string, long bool) (pkgs Packages, warnings []string) {
+	pkgs = make(Packages, 5000)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	for _, repo := range repos {
+		repo := repo
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			f, err := os.Open(filepath.Join(dirPath, repo+".db"))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: can't read file %s\n", filepath.Join(dirPath, repo+".db"))
+				return
+			}
+			defer f.Close()
+
+			localPkgs, warn := ExtractTarGz(f, make(Packages), repo, branch, long)
+
+			mu.Lock()
+			for k, v := range localPkgs {
+				pkgs[k] = v
+			}
+			if warn != nil {
+				warnings = append(warnings, warn...)
+			}
+
+			if len(localPkgs) == 0 {
+				sync := "sync"
+				if strings.Contains(dirPath, "/var/lib/") {
+					sync = "local"
+				}
+				fmt.Fprintf(
+					os.Stderr,
+					"%s: '%s' %s, %s\n",
+					gotext.Get("warning"),
+					repo, sync,
+					gotext.Get("repo empty ? or all packages are ignored"),
+				)
+			}
+			mu.Unlock()
+		}()
+	}
+	wg.Wait()
 	return pkgs, warnings
 }

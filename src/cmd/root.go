@@ -17,7 +17,10 @@ var embedFS embed.FS
 
 type ctxkey int
 
-const AutoUpdate int = 2
+const (
+	AutoUpdate    int = 2
+	ApplicationID     = "manjaro-branch-check"
+)
 const (
 	ctxConfigVars ctxkey = iota
 	ctxCacheDir
@@ -31,6 +34,14 @@ type Config struct {
 	Urls     []string `yaml:"urls"`
 }
 
+func (c Config) cache() string {
+	return filepath.Join(os.Getenv("HOME"), ".cache", ApplicationID)
+}
+
+func (c Config) configFile() string {
+	return filepath.Join(os.Getenv("HOME"), ".config", ApplicationID+".yaml")
+}
+
 type AppConfig struct {
 	Ctx    context.Context
 	Config Config
@@ -41,7 +52,6 @@ var AppState = &AppConfig{}
 func loadConfig(confFilename string) (*Config, error) {
 	file, err := os.Open(confFilename)
 	if err != nil {
-		// for test: rm ~/.config/manjaro-branch-check.yaml
 		conf, _ := embedFS.ReadFile("config.yaml")
 		f, err := os.Create(confFilename)
 		if err != nil {
@@ -98,7 +108,7 @@ Which packages disappear? (diff)
 What are the version differences between branches? (info, version)
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		confFilename := filepath.Join(os.Getenv("HOME"), ".config", "manjaro-branch-check.yaml")
+		confFilename := Config{}.configFile()
 		conf, err := loadConfig(confFilename)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error loading yaml configuration", confFilename)
@@ -106,7 +116,7 @@ What are the version differences between branches? (info, version)
 		}
 		ctx := context.Background()
 		ctx = context.WithValue(ctx, ctxConfigVars, *conf)
-		ctx = context.WithValue(ctx, ctxCacheDir, filepath.Join(os.Getenv("HOME"), ".cache", "manjaro-branch-check"))
+		ctx = context.WithValue(ctx, ctxCacheDir, conf.cache())
 		ctx = context.WithValue(ctx, ctxConfFilename, confFilename)
 		cmd.SetContext(ctx)
 		if !(strings.HasPrefix(cmd.Use, "help") || strings.HasPrefix(cmd.Use, "update")) {
