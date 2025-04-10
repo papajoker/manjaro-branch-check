@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -188,7 +189,7 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 // diffCmd represents the diff command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Compare versions over branches",
+	Short: gotext.Get("Compare versions over branches"),
 	Long: `Example, compare "stable" vs "unstable":
 version  -su --grep '^linux(..|...)$'
 # package                          / stable                     / unstable
@@ -212,7 +213,7 @@ linux66                              6.6.83-1                     6.6.84-1
 		var versions []versionResult
 		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
 
-		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", "compare versions", theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
+		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", gotext.Get("compare versions"), theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
 		for _, v := range versions {
 			v.vfirst = padRightANSI(v.vfirst, col2)
 			fmt.Printf("%-"+strconv.Itoa(col1)+"s %-"+strconv.Itoa(col2)+"s %s\n", v.name, v.vfirst, v.vsecond)
@@ -225,11 +226,11 @@ linux66                              6.6.83-1                     6.6.84-1
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			return fmt.Errorf("use only flags! %v too mutch", args)
+			return fmt.Errorf(gotext.Get("use only flags! %v too mutch"), args)
 		}
 		result := FlagBranches.count()
 		if result != 2 {
-			return fmt.Errorf("invalid branches specified: %s", "not 2")
+			return fmt.Errorf(gotext.Get("invalid branches specified: %s"), "not 2")
 		}
 		return nil
 	},
@@ -241,6 +242,6 @@ func init() {
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
-	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, "display only downgrade up")
-	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", "name filter (regex)")
+	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, gotext.Get("display only downgrade up"))
+	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", gotext.Get("name filter (regex)"))
 }

@@ -16,6 +16,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -122,7 +123,7 @@ func getKeys(pkgs map[string]alpm.Packages, search string) (keys []string) {
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
 	Use:   "info pakageName(s)",
-	Short: "A brief description of your package",
+	Short: gotext.Get("A brief description of your package"),
 	Long: `Compare versions for one or more packages.
 Returns version differences across branches, if differences exist.
 
@@ -167,7 +168,6 @@ ex:
 				warnings = append(warnings, warns...)
 			}
 		}
-		fmt.Println("", len(pkgs), "branches")
 
 		for i, arg := range args {
 			pkgName := strings.TrimSpace(strings.ToLower(arg))
@@ -191,7 +191,7 @@ ex:
 						d := time.Since(pkg.BUILDDATE)
 						days := ""
 						if d.Hours() >= 24 {
-							days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
+							days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), gotext.Get("days"))
 						}
 						ver := pkg.VERSION
 						if oldVersion != "" {
@@ -230,7 +230,7 @@ ex:
 				}
 
 				if i > 264 { //TODO remove ?
-					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", "Too many packages, stop here")
+					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", gotext.Get("Too many packages, stop here"))
 					break
 				}
 			}
@@ -245,10 +245,10 @@ ex:
 func init() {
 	rootCmd.AddCommand(infoCmd)
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
-		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, "add General Info by Gemini")
+		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, gotext.Get("add General Info by Gemini"))
 	}
 	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
-		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, "version installed")
+		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("version installed"))
 	}
 
 	conf, _ := loadConfig(Config{}.configFile())
@@ -256,5 +256,5 @@ func init() {
 		value:  "",
 		valids: append(conf.Branches, "archlinux"),
 	}
-	infoCmd.Flags().Var(&FlagDetailInfo, "detail", "run pacman -Si in branch")
+	infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in branch"))
 }

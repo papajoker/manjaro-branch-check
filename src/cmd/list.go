@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -64,7 +65,7 @@ func grayEmail(s string) string {
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "list packagers",
+	Short: gotext.Get("list packagers"),
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -94,5 +95,5 @@ func init() {
 	listCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
 	listCmd.MarkFlagsOneRequired("stable", "testing", "unstable", "archlinux")
 	listCmd.MarkFlagsMutuallyExclusive("stable", "testing", "unstable", "archlinux")
-	listCmd.Flags().StringVarP(&FlagPackager, "grep", "", FlagPackager, "packager filter (regex)")
+	listCmd.Flags().StringVarP(&FlagPackager, "grep", "", FlagPackager, gotext.Get("packager filter (regex)"))
 }

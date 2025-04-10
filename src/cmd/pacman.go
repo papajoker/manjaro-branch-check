@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +38,7 @@ func execPacman(cmd []string, branch string) {
 // pacmanCmd use the `pacman -S[i|s]`
 var pacmanCmd = &cobra.Command{
 	Use:   "pacman [packageName]",
-	Short: "run pacman in branch",
+	Short: gotext.Get("run pacman in branch"),
 	Long: `run a pacman command as:
 pacman -S* --config '~/.cache/` + ApplicationID + `/BRANCH/pacman.conf'
 Examples in stable branch.
@@ -114,6 +115,6 @@ func init() {
 		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
 		pacmanCmd.MarkFlagsOneRequired("stable", "testing", "unstable", "archlinux")
 		pacmanCmd.MarkFlagsMutuallyExclusive("stable", "testing", "unstable", "archlinux")
-		pacmanCmd.Flags().BoolVarP(&FlagQuiet, "quiet", "q", FlagQuiet, "show less information")
+		pacmanCmd.Flags().BoolVarP(&FlagQuiet, "quiet", "q", FlagQuiet, gotext.Get("show less information"))
 	}
 }

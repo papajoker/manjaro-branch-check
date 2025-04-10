@@ -8,16 +8,16 @@ import (
 	"mbc/alpm"
 	"mbc/theme"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
-
-	"os"
-	"path/filepath"
 )
 
 var (
@@ -251,7 +251,7 @@ func tree(config Config, cacheDir, confFilename string) {
 				d := time.Since(fileInfo.ModTime())
 				days := ""
 				if d.Hours() >= 48 {
-					days = fmt.Sprintf("(%d days)", int(d.Hours()/24))
+					days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), gotext.Get("days"))
 				}
 
 				pkgs, _ := alpm.Load(dirPath, []string{repo}, branch, false)
@@ -283,19 +283,21 @@ func tree(config Config, cacheDir, confFilename string) {
 	if len(kernels) > 0 {
 		lts, err := filterLTSKernels(kernels, ltsFamilies)
 		if err == nil {
-			fmt.Println("# LTS:      ", strings.Join(lts, ", "), theme.ColorGray+"\t(by kernel.org)"+theme.ColorNone)
+			fmt.Printf("# %-16s: %s\t%s\n",
+				"LTS", strings.Join(lts, ", "),
+				theme.ColorGray+"\t("+gotext.Get("by")+" kernel.org)"+theme.ColorNone)
 		}
 	}
-	fmt.Println("# servers:  ", strings.Join(urls, ", "))
-	fmt.Println("# database: ", toHomeDir(cacheDir))
-	fmt.Println("# config:   ", toHomeDir(confFilename))
-	fmt.Printf("# %s Version: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
+	fmt.Printf("# %-16s: %s\n", gotext.Get("mirrors"), strings.Join(urls, ", "))
+	fmt.Printf("# %-16s: %s\n", gotext.Get("database"), toHomeDir(cacheDir))
+	fmt.Printf("# %-16s: %s", gotext.Get("config"), toHomeDir(confFilename))
+	fmt.Printf("# %s %s: V%v %v %v %v\n", "Version", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 
 // updateCmd represents the tree command
 var treeCmd = &cobra.Command{
 	Use:   "tree",
-	Short: "list local repos",
+	Short: gotext.Get("infos on local repos"),
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -306,6 +308,7 @@ var treeCmd = &cobra.Command{
 }
 
 func init() {
+	//setLocale()
 	rootCmd.AddCommand(treeCmd)
 	setCompletion()
 }

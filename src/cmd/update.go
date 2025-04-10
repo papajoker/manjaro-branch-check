@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +50,7 @@ func shouldDownload(url, filePath string) (bool, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("failed to access remote file: %s", resp.Status)
+		return false, fmt.Errorf(gotext.Get("failed to access remote file: %s"), resp.Status)
 	}
 
 	fileInfo, err := os.Stat(filePath)
@@ -88,7 +89,7 @@ func downloadFile(url, filepath string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("download failed: %s", resp.Status)
+		return fmt.Errorf("%s: %s", gotext.Get("download failed"), resp.Status)
 	}
 
 	out, err := os.Create(filepath)
@@ -103,7 +104,7 @@ func downloadFile(url, filepath string) error {
 
 func createConfigPacman(directory string, repos []string) error {
 	if err := os.MkdirAll(directory, os.ModePerm); err != nil {
-		fmt.Println("Error creating directory:", err)
+		fmt.Printf("%s: %v", gotext.Get("Error creating directory"), err)
 		return err
 	}
 	f, err := os.Create(directory + "/pacman.conf")
@@ -147,7 +148,7 @@ func update(config Config, silent bool) {
 
 						dirPath := filepath.Join(cacheBase, branch, "sync")
 						if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-							fmt.Fprintln(out, "Error creating directory:", err)
+							fmt.Fprintf(out, "%s: %v\n", gotext.Get("Error creating directory"), err)
 							continue
 						}
 
@@ -155,7 +156,7 @@ func update(config Config, silent bool) {
 
 						shouldDownload, err := shouldDownload(finalURL, filePath)
 						if err != nil {
-							fmt.Fprintln(out, "Error checking file:", err)
+							fmt.Fprintf(out, "%s: %v\n", gotext.Get("Error checking file"), err)
 							continue
 						}
 
@@ -164,9 +165,9 @@ func update(config Config, silent bool) {
 							go func(url, path, branch string) {
 								defer wg.Done()
 								if err := downloadFile(url, path); err != nil {
-									fmt.Fprintln(out, "Download error:", err)
+									fmt.Fprintf(out, "%s: %v\n", gotext.Get("Download error"), err)
 								} else {
-									fmt.Fprintln(out, theme.Theme(branch)+"Downloaded:", theme.Theme(""), path)
+									fmt.Fprintf(out, "%s: %s%s%s\n", theme.Theme(branch), gotext.Get("Downloaded"), theme.Theme(""), path)
 								}
 							}(finalURL, filePath, branch)
 						}
@@ -188,7 +189,7 @@ func update(config Config, silent bool) {
 
 					dirPath := filepath.Join(cacheBase, branch, "sync")
 					if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-						fmt.Fprintln(out, "Error creating directory:", err)
+						fmt.Fprintf(out, "%s! %v\n", gotext.Get("Error creating directory"), err)
 						continue
 					}
 
@@ -196,7 +197,7 @@ func update(config Config, silent bool) {
 
 					shouldDownload, err := shouldDownload(finalURL, filePath)
 					if err != nil {
-						fmt.Fprintln(out, "Error checking file:", err)
+						fmt.Fprintf(out, "%s: %v\n", gotext.Get("Error checking file"), err)
 						continue
 					}
 
@@ -205,9 +206,9 @@ func update(config Config, silent bool) {
 						go func(url, path, branch string) {
 							defer wg.Done()
 							if err := downloadFile(url, path); err != nil {
-								fmt.Fprintln(out, "Download error:", err)
+								fmt.Fprintf(out, "%s: %v\n", gotext.Get("Download error"), err)
 							} else {
-								fmt.Fprintln(out, theme.Theme(branch)+"Downloaded:", theme.Theme(""), path)
+								fmt.Fprintf(out, "%s%s:%s %s\n", theme.Theme(branch), gotext.Get("Downloaded"), theme.Theme(""), path)
 							}
 						}(finalURL, filePath, branch)
 					}

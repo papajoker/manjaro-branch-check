@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -150,7 +151,7 @@ func startsWith(input string, excludes *[]string) bool {
 // diffCmd represents the diff command
 var diffCmd = &cobra.Command{
 	Use:   "diff",
-	Short: "branch packages differences",
+	Short: gotext.Get("branch packages differences"),
 	Long: `Differentiate the branches, display the packages unique to the branch.
 Example, compare "stable" to "archlinux":
 diff  -sa
@@ -207,11 +208,11 @@ lib32-gamescope-plus                               /
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			return fmt.Errorf("use only flags! %v too mutch", args)
+			return fmt.Errorf(gotext.Get("use only flags! %v too mutch"), args)
 		}
 		result := FlagBranches.count()
 		if result != 2 {
-			return fmt.Errorf("invalid branches specified: %s", "not 2")
+			return fmt.Errorf(gotext.Get("invalid branches specified: not %d"), 2)
 		}
 		return nil
 	},
@@ -224,8 +225,8 @@ func init() {
 	diffCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
 	diffCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
 
-	diffCmd.Flags().BoolVarP(&FlagDiffNew, "new", "", FlagDiffNew, "new packages detail")
-	diffCmd.Flags().BoolVarP(&FlagDiffRm, "rm", "", FlagDiffRm, "removed manjaro packages detail")
+	diffCmd.Flags().BoolVarP(&FlagDiffNew, "new", "", FlagDiffNew, gotext.Get("new packages detail"))
+	diffCmd.Flags().BoolVarP(&FlagDiffRm, "rm", "", FlagDiffRm, gotext.Get("removed manjaro packages detail"))
 	diffCmd.MarkFlagsMutuallyExclusive("new", "rm")
 	diffCmd.MarkFlagsMutuallyExclusive("archlinux", "rm") // or display manjaro exclusive packages but not deleted
 }

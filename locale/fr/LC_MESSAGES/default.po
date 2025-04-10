@@ -1,0 +1,68 @@
+msgid ""
+msgstr ""
+
+#tree
+
+msgid "by"
+msgstr "par"
+
+msgid "database"
+msgstr "base de donnée"
+
+msgid "server"
+msgstr "serveur"
+
+msgid "servers"
+msgstr "serveurs"
+
+msgid "mirrors"
+msgstr "miroirs"
+
+msgid "config"
+msgstr "configuration"
+
+# info
+
+msgid "days"
+msgstr "jours"
+
+#pacman
+
+msgid  "run pacman in branch"
+msgstr "exécuter pacman dans une branche"
+
+#diff
+msgid  "use only flags! %v too mutch"
+msgstr "utiliser uniquement des flags! %v est de trop"
+
+msgid  "invalid branches specified: not %d"
+msgstr "Nombre de branches invalide, pas %"
+
+msgid "new packages detail"
+msgstr "plus le déttail des nouveaux paquets"
+
+msgid "removed manjaro packages detail"
+msgstr "plus le détail des paquets retirés"
+
+
+#list
+msgid "list packagers"
+msgstr "lister les mainteneurs"
+
+#rm
+
+msgid "remove database in"
+msgstr "supprimer la base de donnée dans"
+
+msgid "Directory"
+msgstr "Répertoire"
+
+msgid "Delete this script and configuration"
+msgstr "Supprimer ce script et sa configuration"
+
+msgid "removed successfully"
+msgstr "bien supprimé"
+
+#update
+
+
