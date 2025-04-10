@@ -5,7 +5,8 @@ package cmd
 
 import (
 	"fmt"
-	"mbc/cmd/alpm"
+	"mbc/alpm"
+	"mbc/theme"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -176,7 +177,7 @@ lib32-gamescope-plus                               /
 
 		var diffs []diffResult
 		max, l0, l1, pkgs := diff(&diffs, conf, cacheDir, branches, long)
-		fmt.Printf("%-"+strconv.Itoa(max+11)+"s / %s\n", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+		fmt.Printf("%-"+strconv.Itoa(max+11)+"s / %s\n", theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
 		for _, d := range diffs {
 			fmt.Printf("%-"+strconv.Itoa(max)+"s / %s\n", d.first, d.second)
 		}
@@ -185,21 +186,21 @@ lib32-gamescope-plus                               /
 
 		if FlagDiffNew && l1 > 0 {
 			fmt.Println()
-			fmt.Println("New in " + Theme(branches[1]) + branches[1] + Theme(""))
+			fmt.Println("New in " + theme.Theme(branches[1]) + branches[1] + theme.Theme(""))
 			for _, d := range diffs {
 				if d.first == "" {
 					pkg := pkgs[1][d.second]
-					fmt.Println(Theme(branches[1])+pkg.NAME+Theme(""), "", pkg.Desc(48), ColorGray+pkg.URL+Theme(""))
+					fmt.Println(theme.Theme(branches[1])+pkg.NAME+theme.Theme(""), "", pkg.Desc(48), theme.ColorGray+pkg.URL+theme.Theme(""))
 				}
 			}
 		}
 		if FlagDiffRm && l0 > 0 {
 			fmt.Println()
-			fmt.Println("Not in " + Theme(branches[0]) + branches[1] + Theme(""))
+			fmt.Println("Not in " + theme.Theme(branches[0]) + branches[1] + theme.Theme(""))
 			for _, d := range diffs {
 				if d.second == "" {
 					pkg := pkgs[0][d.first]
-					fmt.Println(Theme(branches[0])+pkg.NAME+Theme(""), "", pkg.Desc(48), ColorGray+pkg.URL+Theme(""))
+					fmt.Println(theme.Theme(branches[0])+pkg.NAME+theme.Theme(""), "", pkg.Desc(48), theme.ColorGray+pkg.URL+theme.Theme(""))
 				}
 			}
 		}

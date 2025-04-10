@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"mbc/theme"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -142,7 +143,7 @@ func update(config Config, silent bool) {
 						finalURL := strings.ReplaceAll(url, "$branch", branch)
 						finalURL = strings.ReplaceAll(finalURL, "$repo", repo)
 						finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-						fmt.Fprintln(out, finalURL, Theme(branch)+"..."+Theme(""))
+						fmt.Fprintln(out, finalURL, theme.Theme(branch)+"..."+theme.Theme(""))
 
 						dirPath := filepath.Join(cacheBase, branch, "sync")
 						if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
@@ -165,7 +166,7 @@ func update(config Config, silent bool) {
 								if err := downloadFile(url, path); err != nil {
 									fmt.Fprintln(out, "Download error:", err)
 								} else {
-									fmt.Fprintln(out, Theme(branch)+"Downloaded:", Theme(""), path)
+									fmt.Fprintln(out, theme.Theme(branch)+"Downloaded:", theme.Theme(""), path)
 								}
 							}(finalURL, filePath, branch)
 						}
@@ -183,7 +184,7 @@ func update(config Config, silent bool) {
 					//finalURL := strings.ReplaceAll(url, "$branch", branch)
 					finalURL := strings.ReplaceAll(url, "$repo", repo)
 					finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-					fmt.Fprintln(out, finalURL, Theme(branch)+"..."+Theme(""))
+					fmt.Fprintln(out, finalURL, theme.Theme(branch)+"..."+theme.Theme(""))
 
 					dirPath := filepath.Join(cacheBase, branch, "sync")
 					if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
@@ -206,7 +207,7 @@ func update(config Config, silent bool) {
 							if err := downloadFile(url, path); err != nil {
 								fmt.Fprintln(out, "Download error:", err)
 							} else {
-								fmt.Fprintln(out, Theme(branch)+"Downloaded:", Theme(""), path)
+								fmt.Fprintln(out, theme.Theme(branch)+"Downloaded:", theme.Theme(""), path)
 							}
 						}(finalURL, filePath, branch)
 					}

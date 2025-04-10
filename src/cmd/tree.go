@@ -5,7 +5,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"mbc/cmd/alpm"
+	"mbc/alpm"
+	"mbc/theme"
 	"net/http"
 	"regexp"
 	"sort"
@@ -221,8 +222,17 @@ func tree(config Config, cacheDir, confFilename string) {
 
 	kernels := []string{}
 	branches := append(config.Branches, "archlinux")
+
+	padw := 0
+	for _, b := range config.Repos {
+		long := len(b)
+		if long > padw {
+			padw = long
+		}
+	}
+
 	for _, branch := range branches {
-		fmt.Println(Theme(branch) + branch + Theme(""))
+		fmt.Println(theme.Theme(branch) + branch + theme.Theme(""))
 		keys := []string{}
 		for _, repo := range config.Repos {
 			for range config.Arch {
@@ -234,6 +244,9 @@ func tree(config Config, cacheDir, confFilename string) {
 				filepath.Join(dirPath, repo+".db")
 
 				fileInfo, _ := os.Stat(filepath.Join(dirPath, repo+".db"))
+				if fileInfo.Size() < 1 {
+					continue
+				}
 				tf := fileInfo.ModTime()
 				d := time.Since(fileInfo.ModTime())
 				days := ""
@@ -242,9 +255,8 @@ func tree(config Config, cacheDir, confFilename string) {
 				}
 
 				pkgs, _ := alpm.Load(dirPath, []string{repo}, branch, false)
-				sep := Theme(branch) + "-" + Theme("")
-				fmt.Printf("  %s %-10s %6d    (%s)  %s\n", sep, repo, len(pkgs), tf.Format("2006-01-02 15:04"), days)
-
+				sep := theme.Theme(branch) + "-" + theme.Theme("")
+				fmt.Printf("  %s %-*s %6d    (%s)  %s\n", sep, padw, repo, len(pkgs), tf.Format("2006-01-02 15:04"), days)
 				if repo == "core" && len(pkgs) > 1 {
 					// search kernels
 					keys = getKeys(map[string]alpm.Packages{"core": pkgs}, `^linux\d{2,3}(-rt)?$`)
@@ -253,7 +265,7 @@ func tree(config Config, cacheDir, confFilename string) {
 		}
 		if len(keys) > 0 {
 			sortKernels(keys)
-			fmt.Printf("    %s%s%s\n", ColorGray, strings.Join(keys, " "), ColorNone)
+			fmt.Printf("    %s%s%s\n", theme.ColorGray, strings.Join(keys, " "), theme.ColorNone)
 			if branch == "stable" {
 				kernels = append(kernels, keys...)
 			}
@@ -271,7 +283,7 @@ func tree(config Config, cacheDir, confFilename string) {
 	if len(kernels) > 0 {
 		lts, err := filterLTSKernels(kernels, ltsFamilies)
 		if err == nil {
-			fmt.Println("# LTS:      ", strings.Join(lts, ", "), ColorGray+"\t(by kernel.org)"+ColorNone)
+			fmt.Println("# LTS:      ", strings.Join(lts, ", "), theme.ColorGray+"\t(by kernel.org)"+theme.ColorNone)
 		}
 	}
 	fmt.Println("# servers:  ", strings.Join(urls, ", "))

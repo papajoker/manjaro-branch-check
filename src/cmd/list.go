@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"mbc/cmd/alpm"
+	"mbc/alpm"
+	"mbc/theme"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -28,7 +29,7 @@ func listP(packagers *[]listResult, config Config, cacheDir string, branch strin
 		os.Exit(2)
 	}
 
-	fmt.Println(Theme(branch) + branch + Theme(""))
+	fmt.Println(theme.Theme(branch) + branch + theme.Theme(""))
 	fmt.Println()
 
 	items := make(map[string]int)
@@ -56,8 +57,8 @@ func listP(packagers *[]listResult, config Config, cacheDir string, branch strin
 }
 
 func grayEmail(s string) string {
-	s = strings.Replace(s, "<", ColorGray+"<", 1)
-	return strings.Replace(s, ">", ">"+ColorNone, 1)
+	s = strings.Replace(s, "<", theme.ColorGray+"<", 1)
+	return strings.Replace(s, ">", ">"+theme.ColorNone, 1)
 }
 
 // listCmd represents the list command

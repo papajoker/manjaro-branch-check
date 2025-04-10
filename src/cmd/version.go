@@ -5,7 +5,8 @@ package cmd
 
 import (
 	"fmt"
-	"mbc/cmd/alpm"
+	"mbc/alpm"
+	"mbc/theme"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -107,7 +108,7 @@ func highlightDiff(va, vb string, color string) string {
 		}
 	}
 
-	return highlighted.String() + Theme("")
+	return highlighted.String() + theme.Theme("")
 }
 
 func version(versions *[]versionResult, config Config, cacheDir string, branches []string) (int, int, string) {
@@ -163,13 +164,13 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 		switch compareVersions(va, vb) {
 		case -1:
 			// vb >
-			highlightVb = highlightDiff(va, vb, Theme(branches[1]))
+			highlightVb = highlightDiff(va, vb, theme.Theme(branches[1]))
 			if FlagDowngrade {
 				highlightVb = ""
 			}
 		case 1:
 			//vb <
-			highlightVa = highlightDiff(vb, va, Theme(branches[0]))
+			highlightVa = highlightDiff(vb, va, theme.Theme(branches[0]))
 		}
 		if highlightVb != "" {
 			*versions = append(*versions, versionResult{pkg, highlightVa, highlightVb})
@@ -211,7 +212,7 @@ linux66                              6.6.83-1                     6.6.84-1
 		var versions []versionResult
 		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
 
-		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", "compare versions", Theme(branches[0])+branches[0]+Theme(""), Theme(branches[1])+branches[1]+Theme(""))
+		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", "compare versions", theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
 		for _, v := range versions {
 			v.vfirst = padRightANSI(v.vfirst, col2)
 			fmt.Printf("%-"+strconv.Itoa(col1)+"s %-"+strconv.Itoa(col2)+"s %s\n", v.name, v.vfirst, v.vsecond)

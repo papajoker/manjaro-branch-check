@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"mbc/theme"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,7 +21,7 @@ var (
 
 func execPacman(cmd []string, branch string) {
 	//fmt.Println()
-	fmt.Println(Theme(branch) + branch + Theme(""))
+	fmt.Println(theme.Theme(branch) + branch + theme.Theme(""))
 	fmt.Println()
 
 	run := exec.Command("/usr/bin/pacman", cmd...) //, "--debug")
@@ -30,7 +31,7 @@ func execPacman(cmd []string, branch string) {
 		fmt.Println(err)
 	}
 	fmt.Println()
-	fmt.Println(Theme(branch) + branch + Theme(""))
+	fmt.Println(theme.Theme(branch) + branch + theme.Theme(""))
 }
 
 // pacmanCmd use the `pacman -S[i|s]`

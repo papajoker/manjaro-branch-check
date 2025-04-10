@@ -5,7 +5,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"mbc/cmd/alpm"
+	"mbc/ai"
+	"mbc/alpm"
+	"mbc/theme"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,9 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/generative-ai-go/genai"
 	"github.com/spf13/cobra"
-	"google.golang.org/api/option"
 )
 
 type branchNaneFlagType struct {
@@ -25,7 +25,7 @@ type branchNaneFlagType struct {
 }
 
 var (
-	FlagIA         bool
+	FlagAI         bool
 	FlagInstalled  bool
 	FlagDetailInfo branchNaneFlagType
 )
@@ -59,36 +59,6 @@ func (e *branchNaneFlagType) SetOne(branch string) error {
 
 func (e *branchNaneFlagType) Type() string {
 	return "branch_name"
-}
-
-func aiInformation(pkg, repo string) {
-	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("GEMINI_API_KEY")))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "ERROR!", err)
-		return
-	}
-	defer client.Close()
-
-	req := `
-		Use this lang ` + os.Getenv("LANG") + ` for the response.
-		Response not in markdown but in simple text for console.
-
-		Informations on a pacman package in Manjaro linux.
-		This package is in repository : ` + repo + `
-		Informations on utility of this manjaro package : ` + pkg + `
-		if this package have an application, can you add a descriptif of this app ? 10 lines maximum ?
-	`
-
-	model := client.GenerativeModel("gemini-2.0-flash")
-	resp, err := model.GenerateContent(ctx, genai.Text(req))
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "ERROR!", err)
-		return
-	}
-	fmt.Println()
-	fmt.Println()
-	fmt.Println(resp.Candidates[0].Content.Parts[0])
 }
 
 func getInstalled(pkg string) {
@@ -126,6 +96,9 @@ func getKeys(pkgs map[string]alpm.Packages, search string) (keys []string) {
 		return
 	}
 	for _, branch := range pkgs {
+		if len(branch) < 1 {
+			continue
+		}
 		if isPlainString(search) {
 			if branch[search] != nil {
 				if !slices.Contains(keys, search) {
@@ -194,6 +167,7 @@ ex:
 				warnings = append(warnings, warns...)
 			}
 		}
+		fmt.Println("", len(pkgs), "branches")
 
 		for i, arg := range args {
 			pkgName := strings.TrimSpace(strings.ToLower(arg))
@@ -212,8 +186,6 @@ ex:
 					if pkg != nil {
 						if pkg.VERSION == oldVersion {
 							continue
-						} else {
-
 						}
 
 						d := time.Since(pkg.BUILDDATE)
@@ -223,11 +195,11 @@ ex:
 						}
 						ver := pkg.VERSION
 						if oldVersion != "" {
-							ver = highlightDiff(oldVersion, pkg.VERSION, Theme(branch))
+							ver = highlightDiff(oldVersion, pkg.VERSION, theme.Theme(branch))
 						}
 						oldVersion = pkg.VERSION
 						fmt.Println()
-						fmt.Printf("   Version:  %-11s %s\n", padRightANSI(Theme(branch)+branch+Theme(""), 11), ver)
+						fmt.Printf("   Version:  %-11s %s\n", padRightANSI(theme.Theme(branch)+branch+theme.Theme(""), 11), ver)
 						fmt.Printf("   Date:     %-11s %s\t%s\n", " ", pkg.BUILDDATE.Format("06-01-02 15:04"), days)
 
 						repo = pkg.REPO
@@ -246,11 +218,19 @@ ex:
 					var args = []string{pkgName}
 					pacmanCmd.Run(cmd, args)
 				}
-				if FlagIA {
-					aiInformation(pkgName, repo)
+				if FlagAI {
+					ai := ai.AiLmm{}
+					ai.Init(context.Background())
+					s := ai.AskPackage(pkgName, repo)
+					ai.Close()
+					if s != "" {
+						fmt.Println()
+						fmt.Println(s)
+					}
 				}
 
-				if i > 36 {
+				if i > 264 { //TODO remove ?
+					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", "Too many packages, stop here")
 					break
 				}
 			}
@@ -265,7 +245,7 @@ ex:
 func init() {
 	rootCmd.AddCommand(infoCmd)
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
-		infoCmd.Flags().BoolVarP(&FlagIA, "ia", "", FlagIA, "add General Info by Gemini")
+		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, "add General Info by Gemini")
 	}
 	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
 		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, "version installed")

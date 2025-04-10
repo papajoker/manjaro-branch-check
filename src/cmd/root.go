@@ -85,7 +85,8 @@ func cacheIsValid(config Config, cacheDir string) error {
 				dirPath := filepath.Join(cacheDir, branch, "sync")
 				filePath := filepath.Join(dirPath, repo+".db")
 				if _, err := os.Stat(filePath); err != nil {
-					return fmt.Errorf("local database corrupted! run command `update`")
+					os.Create(filePath)
+					//return fmt.Errorf("local database corrupted! run command `update`")
 				}
 			}
 		}
