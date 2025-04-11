@@ -256,7 +256,7 @@ func tree(config Config, cacheDir, confFilename string) {
 
 				pkgs, _ := alpm.Load(dirPath, []string{repo}, branch, false)
 				sep := theme.Theme(branch) + "-" + theme.Theme("")
-				fmt.Printf("  %s %-*s %6d    (%s)  %s\n", sep, padw, repo, len(pkgs), tf.Format("2006-01-02 15:04"), days)
+				fmt.Printf("  %s %-*s   %6d    (%s)  %s\n", sep, padw, repo, len(pkgs), tf.Format("2006-01-02 15:04"), days)
 				if repo == "core" && len(pkgs) > 1 {
 					// search kernels
 					keys = getKeys(map[string]alpm.Packages{"core": pkgs}, `^linux\d{2,3}(-rt)?$`)
@@ -290,8 +290,8 @@ func tree(config Config, cacheDir, confFilename string) {
 	}
 	fmt.Printf("# %-16s: %s\n", gotext.Get("mirrors"), strings.Join(urls, ", "))
 	fmt.Printf("# %-16s: %s\n", gotext.Get("database"), toHomeDir(cacheDir))
-	fmt.Printf("# %-16s: %s", gotext.Get("config"), toHomeDir(confFilename))
-	fmt.Printf("# %s %s: V%v %v %v %v\n", "Version", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
+	fmt.Printf("# %-16s: %s\n", gotext.Get("config"), toHomeDir(confFilename))
+	fmt.Printf("# %s: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 
 var treeCmd = &cobra.Command{

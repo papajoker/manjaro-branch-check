@@ -145,6 +145,7 @@ func setLocale() {
 		panic(err)
 	}
 	dir := filepath.Join(filepath.Dir(exePath), "locale")
+	// dir ok if app is a link
 	gotext.Configure(dir, "fr", "default")
 }
 
