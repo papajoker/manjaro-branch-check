@@ -175,7 +175,7 @@ ex:
 				fmt.Fprintln(os.Stderr, "Empty package name")
 				os.Exit(2)
 			}
-			if pkgName[0:7] == "#kernel" {
+			if len(pkgName) > 6 && pkgName[0:7] == "#kernel" {
 				pkgName = `^linux\d{2,3}(-rt)?$`
 			}
 			repo := ""

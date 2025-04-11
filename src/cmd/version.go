@@ -135,7 +135,7 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 
 	keys := make([]string, 0, len(tmpkeys))
 	FlagGrep = strings.ToLower(FlagGrep)
-	if FlagGrep[0:7] == "#kernel" {
+	if len(FlagGrep) > 6 && FlagGrep[0:7] == "#kernel" {
 		FlagGrep = `^linux\d{2,3}(-rt)?$`
 	}
 	reg, err := regexp.Compile(FlagGrep)
