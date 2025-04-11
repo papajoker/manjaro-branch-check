@@ -65,7 +65,7 @@ func grayEmail(s string) string {
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: gotext.Get("list packagers"),
+	Short: "list packagers",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -89,6 +89,8 @@ var listCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd)
+	setLocale()
+	listCmd.Short = gotext.Get("list packagers")
 	listCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable branch")
 	listCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
 	listCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")

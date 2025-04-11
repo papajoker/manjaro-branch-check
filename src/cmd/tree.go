@@ -294,10 +294,9 @@ func tree(config Config, cacheDir, confFilename string) {
 	fmt.Printf("# %s %s: V%v %v %v %v\n", "Version", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 
-// updateCmd represents the tree command
 var treeCmd = &cobra.Command{
 	Use:   "tree",
-	Short: gotext.Get("infos on local repos"),
+	Short: "infos on local repos",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -308,7 +307,7 @@ var treeCmd = &cobra.Command{
 }
 
 func init() {
-	//setLocale()
+	treeCmd.Short = gotext.Get("infos on local repos")
 	rootCmd.AddCommand(treeCmd)
 	setCompletion()
 }

@@ -151,7 +151,7 @@ func startsWith(input string, excludes *[]string) bool {
 // diffCmd represents the diff command
 var diffCmd = &cobra.Command{
 	Use:   "diff",
-	Short: gotext.Get("branch packages differences"),
+	Short: "branch packages differences",
 	Long: `Differentiate the branches, display the packages unique to the branch.
 Example, compare "stable" to "archlinux":
 diff  -sa
@@ -219,11 +219,13 @@ lib32-gamescope-plus                               /
 }
 
 func init() {
+	setLocale()
 	rootCmd.AddCommand(diffCmd)
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable branch")
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
+	diffCmd.Short = gotext.Get("branch packages differences")
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
 
 	diffCmd.Flags().BoolVarP(&FlagDiffNew, "new", "", FlagDiffNew, gotext.Get("new packages detail"))
 	diffCmd.Flags().BoolVarP(&FlagDiffRm, "rm", "", FlagDiffRm, gotext.Get("removed manjaro packages detail"))

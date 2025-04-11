@@ -228,7 +228,7 @@ func update(config Config, silent bool) {
 var updateCmd = &cobra.Command{
 	Use:     "update",
 	Aliases: []string{"upgrade", "up"},
-	Short:   "Update repos",
+	Short:   "Update branches",
 	Long:    `Update Manjaro and Archlinux pacman databases`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
@@ -238,5 +238,6 @@ var updateCmd = &cobra.Command{
 }
 
 func init() {
+	updateCmd.Short = gotext.Get("Update branches")
 	rootCmd.AddCommand(updateCmd)
 }

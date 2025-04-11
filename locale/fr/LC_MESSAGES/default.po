@@ -1,5 +1,5 @@
-msgid ""
-msgstr ""
+msgid "branch"
+msgstr "branche"
 
 #tree
 
@@ -21,17 +21,52 @@ msgstr "miroirs"
 msgid "config"
 msgstr "configuration"
 
-# info
+msgid "infos on local repos"
+msgstr "information sur les dépôts en local (cache)"
+
+#info
+
+msgid "a brief description of your package"
+msgstr "une brève description du paquet"
 
 msgid "days"
 msgstr "jours"
 
+msgid "package installed ?"
+msgstr "paquet est installé ?"
+
+msgid "must be one of"
+msgstr "doit être une valeur de"
+
+msgid "add General Info by Gemini"
+msgstr "ajoute une information générale sur le paquet par ia Gemini"
+
+msgid "run pacman -Si in `branch`"
+msgstr "exécute en plus un `pacman -Si` dans la `branche` demandée"
+
+
 #pacman
 
-msgid  "run pacman in branch"
-msgstr "exécuter pacman dans une branche"
+msgid  "run `pacman` in branch"
+msgstr "exécuter `pacman` dans une branche"
+
+msgid  "search"
+msgstr "rechercher   (-Ss)"
+
+msgid  "list"
+msgstr "lister   (-Sl)"
+
+msgid  "info"
+msgstr "informations d’un paquet   (-Si)"
+
+msgid  "show less information"
+msgstr "affiche moins d’informations"
 
 #diff
+
+msgid  "branch packages differences"
+msgstr "différences de paquets entre les branches"
+
 msgid  "use only flags! %v too mutch"
 msgstr "utiliser uniquement des flags! %v est de trop"
 
@@ -44,6 +79,29 @@ msgstr "plus le déttail des nouveaux paquets"
 msgid "removed manjaro packages detail"
 msgstr "plus le détail des paquets retirés"
 
+
+#version
+
+msgid "packages"
+msgstr "paquets"
+
+msgid "filter"
+msgstr "filtre"
+
+msgid "compare versions over branches"
+msgstr "compare les versions entre les branches"
+
+msgid "name filter (regex)"
+msgstr "filtre sur nom (par regex)"
+
+msgid "display only downgrade up"
+msgstr "uniquement les paquets avec une version supérieurs à la branche précédente"
+
+msgid "invalid branches specified: %s"
+msgstr "nombre de branches invalide: %s"
+
+msgid "use only flags! %v too mutch"
+msgstr "utilisez uniquement des flags! %v trop"
 
 #list
 msgid "list packagers"
@@ -64,5 +122,8 @@ msgid "removed successfully"
 msgstr "bien supprimé"
 
 #update
+
+msgid "Update branches"
+msgstr "mette à jour les branches"
 
 

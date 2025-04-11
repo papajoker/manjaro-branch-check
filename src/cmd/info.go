@@ -43,7 +43,7 @@ func (e *branchNaneFlagType) Set(v string) error {
 		e.value = v
 		return nil
 	}
-	return errors.New(`must be one of "` + strings.Join(e.valids, `", "`) + `"`)
+	return errors.New(gotext.Get("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
 }
 
 func (e *branchNaneFlagType) SetOne(branch string) error {
@@ -55,19 +55,18 @@ func (e *branchNaneFlagType) SetOne(branch string) error {
 		e.value = e.valids[i]
 		return nil
 	}
-	return errors.New(`must be one of "` + strings.Join(e.valids, `", "`) + `"`)
+	return errors.New(gotext.Get("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
 }
 
 func (e *branchNaneFlagType) Type() string {
-	return "branch_name"
+	return "branch"
 }
 
 func getInstalled(pkg string) {
 	out, err := exec.Command("/usr/bin/pacman", "-Q", pkg).Output()
 	if err == nil {
 		fmt.Println()
-		fmt.Print("Installed:")
-		fmt.Println(strings.ReplaceAll(string(out), pkg, ""))
+		fmt.Printf("%s: %s\n", gotext.Get("Installed"), strings.ReplaceAll(string(out), pkg, ""))
 	}
 
 }
@@ -123,13 +122,14 @@ func getKeys(pkgs map[string]alpm.Packages, search string) (keys []string) {
 // infoCmd represents the info command
 var infoCmd = &cobra.Command{
 	Use:   "info pakageName(s)",
-	Short: gotext.Get("A brief description of your package"),
+	Short: "a brief description of your package",
 	Long: `Compare versions for one or more packages.
 Returns version differences across branches, if differences exist.
 
 ex:
 	info pacman grub
 	info 'linux\d{2}$' 'linux\d..$' '^linux\d.*-rt$'
+	info "#kernel"  	# search all kernels
 	info pacman --detail t		# run at end pacman -Si in branch Testing
 	echo -e "pacman grub" | mbc info -
 	`,
@@ -174,6 +174,9 @@ ex:
 			if pkgName == "" {
 				fmt.Fprintln(os.Stderr, "Empty package name")
 				os.Exit(2)
+			}
+			if pkgName[0:7] == "#kernel" {
+				pkgName = `^linux\d{2,3}(-rt)?$`
 			}
 			repo := ""
 
@@ -243,12 +246,15 @@ ex:
 }
 
 func init() {
+	setLocale()
 	rootCmd.AddCommand(infoCmd)
+	infoCmd.Short = gotext.Get("a brief description of your package")
+
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
 		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, gotext.Get("add General Info by Gemini"))
 	}
 	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
-		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("version installed"))
+		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("package installed ?"))
 	}
 
 	conf, _ := loadConfig(Config{}.configFile())
@@ -256,5 +262,5 @@ func init() {
 		value:  "",
 		valids: append(conf.Branches, "archlinux"),
 	}
-	infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in branch"))
+	infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in `branch`"))
 }

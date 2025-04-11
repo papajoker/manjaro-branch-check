@@ -135,6 +135,9 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 
 	keys := make([]string, 0, len(tmpkeys))
 	FlagGrep = strings.ToLower(FlagGrep)
+	if FlagGrep[0:7] == "#kernel" {
+		FlagGrep = `^linux\d{2,3}(-rt)?$`
+	}
 	reg, err := regexp.Compile(FlagGrep)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR! bad regex: %s\n", FlagGrep)
@@ -189,8 +192,11 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 // diffCmd represents the diff command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: gotext.Get("Compare versions over branches"),
-	Long: `Example, compare "stable" vs "unstable":
+	Short: "compare versions over branches",
+	Long: `Example:
+  mbc version --grep '#kernel' -st    # kernels stable / testing
+
+  mbc compare "stable" vs "unstable":
 version  -su --grep '^linux(..|...)$'
 # package                          / stable                     / unstable
 linux612                             6.12.19-1                    6.12.20-2
@@ -219,9 +225,9 @@ linux66                              6.6.83-1                     6.6.84-1
 			fmt.Printf("%-"+strconv.Itoa(col1)+"s %-"+strconv.Itoa(col2)+"s %s\n", v.name, v.vfirst, v.vsecond)
 		}
 		fmt.Println()
-		fmt.Printf("# %d packages\n", len(versions))
+		fmt.Printf("# %d %s\n", len(versions), gotext.Get("packages"))
 		if grepflag != "" {
-			fmt.Println("# filter:", grepflag)
+			fmt.Printf("# %s: %v\n", gotext.Get("filter"), grepflag)
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -238,10 +244,11 @@ linux66                              6.6.83-1                     6.6.84-1
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable branch")
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
+	versionCmd.Short = gotext.Get("compare versions over branches")
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
 	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, gotext.Get("display only downgrade up"))
 	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", gotext.Get("name filter (regex)"))
 }

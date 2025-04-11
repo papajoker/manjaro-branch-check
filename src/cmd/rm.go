@@ -13,7 +13,7 @@ import (
 // rmCmd represents the rm command
 var rmCmd = &cobra.Command{
 	Use:   "rm",
-	Short: gotext.Get("remove database in") + " ~/.cache/",
+	Short: "remove database in" + " ~/.cache/",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := cmd.Context()
 		cacheDir := ctx.Value(ctxCacheDir).(string)
@@ -53,4 +53,5 @@ var rmCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(rmCmd)
+	rmCmd.Short = gotext.Get("remove database in") + " ~/.cache/"
 }

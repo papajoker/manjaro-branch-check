@@ -38,7 +38,7 @@ func execPacman(cmd []string, branch string) {
 // pacmanCmd use the `pacman -S[i|s]`
 var pacmanCmd = &cobra.Command{
 	Use:   "pacman [packageName]",
-	Short: gotext.Get("run pacman in branch"),
+	Short: "run pacman in branch",
 	Long: `run a pacman command as:
 pacman -S* --config '~/.cache/` + ApplicationID + `/BRANCH/pacman.conf'
 Examples in stable branch.
@@ -102,17 +102,18 @@ pacman -Sl: List :
 func init() {
 	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
 		rootCmd.AddCommand(pacmanCmd)
+		pacmanCmd.Short = gotext.Get("run pacman in branch")
 
-		pacmanCmd.Flags().BoolVarP(&FlagSearch, "Search", "S", false, "search")
-		pacmanCmd.Flags().BoolVarP(&FlagList, "List", "L", false, "list")
-		pacmanCmd.Flags().BoolVarP(&FlagInfo, "Info", "I", false, "info")
+		pacmanCmd.Flags().BoolVarP(&FlagSearch, "Search", "S", false, gotext.Get("search"))
+		pacmanCmd.Flags().BoolVarP(&FlagList, "List", "L", false, gotext.Get("list"))
+		pacmanCmd.Flags().BoolVarP(&FlagInfo, "Info", "I", false, gotext.Get("info"))
 		pacmanCmd.MarkFlagsOneRequired("Search", "List", "Info")
 		pacmanCmd.MarkFlagsMutuallyExclusive("Search", "List", "Info")
 
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable branch")
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
 		pacmanCmd.MarkFlagsOneRequired("stable", "testing", "unstable", "archlinux")
 		pacmanCmd.MarkFlagsMutuallyExclusive("stable", "testing", "unstable", "archlinux")
 		pacmanCmd.Flags().BoolVarP(&FlagQuiet, "quiet", "q", FlagQuiet, gotext.Get("show less information"))
