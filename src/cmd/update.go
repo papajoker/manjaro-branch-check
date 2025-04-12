@@ -167,7 +167,8 @@ func update(config Config, silent bool) {
 								if err := downloadFile(url, path); err != nil {
 									fmt.Fprintf(out, "%s: %v\n", gotext.Get("Download error"), err)
 								} else {
-									fmt.Fprintf(out, "%s: %s%s%s\n", theme.Theme(branch), gotext.Get("Downloaded"), theme.Theme(""), path)
+									path := strings.ReplaceAll(path, "/"+branch+"/", "/"+theme.Theme(branch)+branch+theme.Theme("")+"/")
+									fmt.Fprintf(out, "%s%s:%s %s\n", theme.Theme(branch), gotext.Get("Downloaded"), theme.Theme(""), path)
 								}
 							}(finalURL, filePath, branch)
 						}
@@ -208,6 +209,7 @@ func update(config Config, silent bool) {
 							if err := downloadFile(url, path); err != nil {
 								fmt.Fprintf(out, "%s: %v\n", gotext.Get("Download error"), err)
 							} else {
+								path := strings.ReplaceAll(path, "/"+branch+"/", "/"+theme.Theme(branch)+branch+theme.Theme("")+"/")
 								fmt.Fprintf(out, "%s%s:%s %s\n", theme.Theme(branch), gotext.Get("Downloaded"), theme.Theme(""), path)
 							}
 						}(finalURL, filePath, branch)
