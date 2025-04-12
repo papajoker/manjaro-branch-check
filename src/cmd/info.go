@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"mbc/ai"
@@ -222,13 +221,12 @@ ex:
 					pacmanCmd.Run(cmd, args)
 				}
 				if FlagAI {
-					ai := ai.AiLmm{}
-					ai.Init(context.Background())
-					s := ai.AskPackage(pkgName, repo)
-					ai.Close()
-					if s != "" {
-						fmt.Println()
-						fmt.Println(s)
+					if a := ai.MakeAi(conf.API); a != nil {
+						s := a.Ask(ai.GetAskPackage(pkgName, repo))
+						if s != "" {
+							fmt.Println()
+							fmt.Println(s)
+						}
 					}
 				}
 

@@ -33,6 +33,7 @@ type Config struct {
 	Arch     []string `yaml:"arch"`
 	Repos    []string `yaml:"repos"`
 	Urls     []string `yaml:"urls"`
+	API      string   `yaml:"ai",omitempty`
 }
 
 func (c Config) cache() string {
