@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -14,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Masterminds/semver/v3"
 	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
@@ -45,54 +41,6 @@ func padRightANSI(s string, width int) string {
 		return s + strings.Repeat(" ", diff)
 	}
 	return s
-}
-
-func compareVersions(v1, v2 string) int {
-	if v1 == v2 {
-		return 0
-	}
-
-	var epochRm = func(v string) string {
-		if b, a, found := strings.Cut(v, ":"); found {
-			v = a
-		} else {
-			v = b
-		}
-		return v
-	}
-	ve1 := epochRm(v1)
-	ve2 := epochRm(v2)
-
-	ver1, err1 := semver.NewVersion(ve1)
-	ver2, err2 := semver.NewVersion(ve2)
-
-	if err1 == nil && err2 == nil {
-		return ver1.Compare(ver2)
-	}
-
-	// not good version for semver ?
-
-	var convert = func(str string) string {
-		// FIX this: -8 < -10 ?NO but -0008 < -0010 ok
-		if b, a, found := strings.Cut(str, "-"); found {
-			if rel, err := strconv.Atoi(a); err == nil {
-				return b + "-" + fmt.Sprintf("%04d", rel)
-			}
-		}
-		return str
-	}
-	v1 = convert(v1)
-	v2 = convert(v2)
-	//FIX this: 43.1-1             43.1+r37+gea6718427-1
-	v1 = strings.ReplaceAll(v1, "+", "?")
-	v2 = strings.ReplaceAll(v2, "+", "?")
-
-	if v1 > v2 {
-		return 1
-	} else if v1 < v2 {
-		return -1
-	}
-	return 0
 }
 
 func highlightDiff(va, vb string, color string) string {
@@ -165,7 +113,7 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 
 		highlightVb := vb
 		highlightVa := va
-		switch compareVersions(va, vb) {
+		switch alpm.AlpmPkgVerCmp(va, vb) {
 		case -1:
 			// vb >
 			highlightVb = highlightDiff(va, vb, theme.Theme(branches[1]))
