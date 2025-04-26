@@ -8,7 +8,6 @@ import (
 	"mbc/alpm"
 	"mbc/theme"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
@@ -61,13 +60,15 @@ func (e *branchNaneFlagType) Type() string {
 	return "branch"
 }
 
-func getInstalled(pkg string) {
-	out, err := exec.Command("/usr/bin/pacman", "-Q", pkg).Output()
-	if err == nil {
-		fmt.Println()
-		fmt.Printf("%s: %s\n", gotext.Get("Installed"), strings.ReplaceAll(string(out), pkg, ""))
+func isInstalled(pkg string, test bool) string {
+	if !test {
+		return ""
 	}
-
+	matches, _ := filepath.Glob("/var/lib/pacman/local/" + pkg + "-*/desc")
+	if len(matches) > 0 {
+		return "*"
+	}
+	return ""
 }
 
 // cobra arg is regex or not ?
@@ -180,7 +181,7 @@ ex:
 			repo := ""
 
 			for _, pkgName = range getKeys(pkgs, pkgName) {
-				fmt.Printf("\n%s", pkgName)
+				fmt.Printf("\n%s %s", pkgName, isInstalled(pkgName, FlagInstalled))
 				oldVersion := ""
 				for _, branch := range branches {
 					//fmt.Println("  ", Theme(branch)+branch+Theme(""))
@@ -210,9 +211,7 @@ ex:
 					}*/
 
 				}
-				if FlagInstalled {
-					getInstalled(pkgName)
-				}
+
 				if len(FlagDetailInfo.value) > 0 {
 					fmt.Println()
 					FlagBranches.Set(string(FlagDetailInfo.value))
@@ -251,8 +250,11 @@ func init() {
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
 		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, gotext.Get("add General Info by Gemini"))
 	}
-	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
+	if _, err := os.Stat("/var/lib/pacman/local"); err == nil {
 		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("package installed ?"))
+		if _, err := os.Stat("/usr/bin/pacman"); err == nil {
+			infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in `branch`"))
+		}
 	}
 
 	conf, _ := loadConfig(Config{}.configFile())
@@ -260,5 +262,5 @@ func init() {
 		value:  "",
 		valids: append(conf.Branches, "archlinux"),
 	}
-	infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in `branch`"))
+
 }
