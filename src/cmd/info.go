@@ -169,7 +169,7 @@ ex:
 			}
 		}
 
-		for i, arg := range args {
+		for _, arg := range args {
 			pkgName := strings.TrimSpace(strings.ToLower(arg))
 			if pkgName == "" {
 				fmt.Fprintln(os.Stderr, "Empty package name")
@@ -229,10 +229,10 @@ ex:
 					}
 				}
 
-				if i > 264 { //TODO remove ?
+				/*if i > 264 {
 					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", gotext.Get("Too many packages, stop here"))
 					break
-				}
+				}*/
 			}
 		}
 		if len(warnings) > 0 {
@@ -250,7 +250,7 @@ func init() {
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
 		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, gotext.Get("add General Info by Gemini"))
 	}
-	if _, err := os.Stat("/var/lib/pacman/local"); err == nil {
+	if alpm.LocalDBExists() {
 		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("package installed ?"))
 		if _, err := os.Stat("/usr/bin/pacman"); err == nil {
 			infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in `branch`"))

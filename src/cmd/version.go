@@ -17,6 +17,7 @@ import (
 
 var (
 	FlagDowngrade bool
+	FlagLocal     bool
 	FlagGrep      string
 )
 
@@ -65,6 +66,15 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 	tmpkeys := make(map[string]bool)
 	tmp[0], _ = alpm.Load(filepath.Join(cacheDir, branches[0], "sync"), config.Repos, branches[0], false)
 	tmp[1], _ = alpm.Load(filepath.Join(cacheDir, branches[1], "sync"), config.Repos, branches[1], false)
+
+	if FlagLocal {
+		// in output, whant only installed package
+		locals, err := alpm.LoadLocal()
+		if err == nil {
+			tmp[0] = alpm.FilterOnly(tmp[0], locals)
+			tmp[1] = alpm.FilterOnly(tmp[1], locals)
+		}
+	}
 
 	for key := range tmp[0] {
 		if _, exists := tmp[1][key]; exists {
@@ -199,4 +209,7 @@ func init() {
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
 	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, gotext.Get("display only downgrade up"))
 	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", gotext.Get("name filter (regex)"))
+	if alpm.LocalDBExists() {
+		versionCmd.Flags().BoolVarP(&FlagLocal, "local", "", FlagInstalled, gotext.Get("only installed packages filter"))
+	}
 }

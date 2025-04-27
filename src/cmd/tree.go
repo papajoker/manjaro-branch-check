@@ -291,6 +291,12 @@ func tree(config Config, cacheDir, confFilename string) {
 	fmt.Printf("# %-16s: %s\n", gotext.Get("mirrors"), strings.Join(urls, ", "))
 	fmt.Printf("# %-16s: %s\n", gotext.Get("database"), toHomeDir(cacheDir))
 	fmt.Printf("# %-16s: %s\n", gotext.Get("config"), toHomeDir(confFilename))
+	if alpm.LocalDBExists() {
+		pkgs, err := alpm.LoadLocal()
+		if err == nil {
+			fmt.Printf("# %-16s: %d %s\n", gotext.Get("installed"), len(pkgs), gotext.Get("packages"))
+		}
+	}
 	fmt.Printf("# %s: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
 }
 
