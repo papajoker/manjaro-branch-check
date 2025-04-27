@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mbc/alpm"
 	"mbc/theme"
+	"mbc/tr"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -177,24 +177,24 @@ linux66                              6.6.83-1                     6.6.84-1
 		var versions []versionResult
 		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
 
-		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", gotext.Get("compare versions"), theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
+		fmt.Printf("# %-"+strconv.Itoa(col1-2)+"s %-"+strconv.Itoa(col2+9)+"s / %s\n", tr.T("compare versions"), theme.Theme(branches[0])+branches[0]+theme.Theme(""), theme.Theme(branches[1])+branches[1]+theme.Theme(""))
 		for _, v := range versions {
 			v.vfirst = padRightANSI(v.vfirst, col2)
 			fmt.Printf("%-"+strconv.Itoa(col1)+"s %-"+strconv.Itoa(col2)+"s %s\n", v.name, v.vfirst, v.vsecond)
 		}
 		fmt.Println()
-		fmt.Printf("# %d %s\n", len(versions), gotext.Get("packages"))
+		fmt.Printf("# %d %s\n", len(versions), tr.T("packages"))
 		if grepflag != "" {
-			fmt.Printf("# %s: %v\n", gotext.Get("filter"), grepflag)
+			fmt.Printf("# %s: %v\n", tr.T("filter"), grepflag)
 		}
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			return fmt.Errorf(gotext.Get("use only flags! %v too mutch"), args)
+			return fmt.Errorf(tr.T("use only flags! %v too mutch"), args)
 		}
 		result := FlagBranches.count()
 		if result != 2 {
-			return fmt.Errorf(gotext.Get("invalid branches specified: %s"), "not 2")
+			return fmt.Errorf(tr.T("invalid branches specified: %s"), "not 2")
 		}
 		return nil
 	},
@@ -202,14 +202,15 @@ linux66                              6.6.83-1                     6.6.84-1
 
 func init() {
 	rootCmd.AddCommand(versionCmd)
-	versionCmd.Short = gotext.Get("compare versions over branches")
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
-	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
-	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, gotext.Get("display only downgrade up"))
-	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", gotext.Get("name filter (regex)"))
+	versionCmd.Short = tr.T(versionCmd.Short)
+	versionCmd.Long = versionCmd.Short + "\n\n" + versionCmd.Long
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+tr.T("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+tr.T("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+tr.T("branch"))
+	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+tr.T("branch"))
+	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, tr.T("display only downgrade up"))
+	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", tr.T("name filter (regex)"))
 	if alpm.LocalDBExists() {
-		versionCmd.Flags().BoolVarP(&FlagLocal, "local", "", FlagInstalled, gotext.Get("only installed packages filter"))
+		versionCmd.Flags().BoolVarP(&FlagLocal, "local", "", FlagInstalled, tr.T("only installed packages filter"))
 	}
 }

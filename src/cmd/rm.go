@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"mbc/tr"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ var rmCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println(gotext.Get("Directory"), cacheDir, gotext.Get("removed successfully"))
+			fmt.Println(tr.T("Directory"), cacheDir, tr.T("removed successfully"))
 		}
 
 		execPath, err := os.Executable()
@@ -31,7 +31,7 @@ var rmCmd = &cobra.Command{
 		}
 
 		var response string
-		fmt.Print("\n" + gotext.Get("Delete this script and configuration") + " ? (y/N) : ")
+		fmt.Print("\n" + tr.T("Delete this script and configuration") + " ? (y/N) : ")
 		if _, err = fmt.Scanln(&response); err != nil {
 			return
 		}
@@ -53,5 +53,5 @@ var rmCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(rmCmd)
-	rmCmd.Short = gotext.Get("remove database in") + " ~/.cache/"
+	rmCmd.Short = tr.T("remove database in") + " ~/.cache/"
 }

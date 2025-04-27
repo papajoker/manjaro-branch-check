@@ -1,3 +1,12 @@
+msgid ""
+msgstr ""
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+
 msgid "branch"
 msgstr "branche"
 
@@ -21,6 +30,9 @@ msgstr "miroirs"
 msgid "config"
 msgstr "configuration"
 
+msgid "installed"
+msgstr "installé"
+
 msgid "infos on local repos"
 msgstr "information sur les dépôts en local (cache)"
 
@@ -32,8 +44,11 @@ msgstr "une brève description du paquet"
 msgid "days"
 msgstr "jours"
 
+msgid "day"
+msgstr "jour"
+
 msgid "package installed ?"
-msgstr "paquet est installé ?"
+msgstr "paquet est installé ? (* si oui)"
 
 msgid "must be one of"
 msgstr "doit être une valeur de"
@@ -47,7 +62,7 @@ msgstr "exécute en plus un `pacman -Si` dans la `branche` demandée"
 
 #pacman
 
-msgid  "run `pacman` in branch"
+msgid "run pacman in branch"
 msgstr "exécuter `pacman` dans une branche"
 
 msgid  "search"
@@ -57,10 +72,10 @@ msgid  "list"
 msgstr "lister   (-Sl)"
 
 msgid  "info"
-msgstr "informations d’un paquet   (-Si)"
+msgstr "informations sur un paquet   (-Si)"
 
 msgid  "show less information"
-msgstr "affiche moins d’informations"
+msgstr "afficher moins d’informations"
 
 #diff
 
@@ -74,10 +89,10 @@ msgid  "invalid branches specified: not %d"
 msgstr "Nombre de branches invalide, pas %"
 
 msgid "new packages detail"
-msgstr "plus le déttail des nouveaux paquets"
+msgstr "ajoute le détail des nouveaux paquets"
 
 msgid "removed manjaro packages detail"
-msgstr "plus le détail des paquets retirés"
+msgstr "ajoute le détail des paquets retirés"
 
 
 #version
@@ -89,13 +104,13 @@ msgid "filter"
 msgstr "filtre"
 
 msgid "compare versions over branches"
-msgstr "compare les versions entre les branches"
+msgstr "comparer les versions entre les branches"
 
 msgid "name filter (regex)"
-msgstr "filtre sur nom (par regex)"
+msgstr "filtre sur le nom des paquets (par regex)"
 
 msgid "display only downgrade up"
-msgstr "uniquement les paquets avec une version supérieurs à la branche précédente"
+msgstr "filtre sur les versions supérieures à la branche suivante"
 
 msgid "invalid branches specified: %s"
 msgstr "nombre de branches invalide: %s"
@@ -103,9 +118,15 @@ msgstr "nombre de branches invalide: %s"
 msgid "use only flags! %v too mutch"
 msgstr "utilisez uniquement des flags! %v trop"
 
+msgid "only installed packages filter"
+msgstr "filtre sur nos paquets installés"
+
 #list
 msgid "list packagers"
 msgstr "lister les mainteneurs"
+
+msgid  "packager filter (regex)"
+msgstr "filtre sur le mainteneur (regex)"
 
 #rm
 
@@ -124,6 +145,9 @@ msgstr "bien supprimé"
 #update
 
 msgid "Update branches"
-msgstr "mette à jour les branches"
+msgstr "mettre à jour les branches"
+
+msgid "Update Manjaro and Archlinux pacman databases"
+msgstr "Mettre les bases de données pacman pour manjaro et archlinux"
 
 

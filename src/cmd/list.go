@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mbc/alpm"
 	"mbc/theme"
+	"mbc/tr"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -11,7 +12,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -89,13 +89,12 @@ var listCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-	setLocale()
-	listCmd.Short = gotext.Get("list packagers")
-	listCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable branch")
-	listCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing branch")
-	listCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable branch")
-	listCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux branch")
+	listCmd.Short = tr.T(listCmd.Short)
+	listCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+tr.T("branch"))
+	listCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+tr.T("branch"))
+	listCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+tr.T("branch"))
+	listCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+tr.T("branch"))
 	listCmd.MarkFlagsOneRequired("stable", "testing", "unstable", "archlinux")
 	listCmd.MarkFlagsMutuallyExclusive("stable", "testing", "unstable", "archlinux")
-	listCmd.Flags().StringVarP(&FlagPackager, "grep", "", FlagPackager, gotext.Get("packager filter (regex)"))
+	listCmd.Flags().StringVarP(&FlagPackager, "grep", "", FlagPackager, tr.T("packager filter (regex)"))
 }

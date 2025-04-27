@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"mbc/alpm"
 	"mbc/theme"
+	"mbc/tr"
 	"path/filepath"
 	"reflect"
 	"regexp"
@@ -14,7 +15,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -208,27 +208,26 @@ lib32-gamescope-plus                               /
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			return fmt.Errorf(gotext.Get("use only flags! %v too mutch"), args)
+			return fmt.Errorf(tr.T("use only flags! %v too mutch"), args)
 		}
 		result := FlagBranches.count()
 		if result != 2 {
-			return fmt.Errorf(gotext.Get("invalid branches specified: not %d"), 2)
+			return fmt.Errorf(tr.T("invalid branches specified: not %d"), 2)
 		}
 		return nil
 	},
 }
 
 func init() {
-	setLocale()
 	rootCmd.AddCommand(diffCmd)
-	diffCmd.Short = gotext.Get("branch packages differences")
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
-	diffCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
+	diffCmd.Short = tr.T(diffCmd.Short)
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+tr.T("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+tr.T("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+tr.T("branch"))
+	diffCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+tr.T("branch"))
 
-	diffCmd.Flags().BoolVarP(&FlagDiffNew, "new", "", FlagDiffNew, gotext.Get("new packages detail"))
-	diffCmd.Flags().BoolVarP(&FlagDiffRm, "rm", "", FlagDiffRm, gotext.Get("removed manjaro packages detail"))
+	diffCmd.Flags().BoolVarP(&FlagDiffNew, "new", "", FlagDiffNew, tr.T("new packages detail"))
+	diffCmd.Flags().BoolVarP(&FlagDiffRm, "rm", "", FlagDiffRm, tr.T("removed manjaro packages detail"))
 	diffCmd.MarkFlagsMutuallyExclusive("new", "rm")
 	diffCmd.MarkFlagsMutuallyExclusive("archlinux", "rm") // or display manjaro exclusive packages but not deleted
 }

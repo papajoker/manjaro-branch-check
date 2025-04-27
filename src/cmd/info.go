@@ -7,6 +7,7 @@ import (
 	"mbc/ai"
 	"mbc/alpm"
 	"mbc/theme"
+	"mbc/tr"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +41,7 @@ func (e *branchNaneFlagType) Set(v string) error {
 		e.value = v
 		return nil
 	}
-	return errors.New(gotext.Get("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
+	return errors.New(tr.T("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
 }
 
 func (e *branchNaneFlagType) SetOne(branch string) error {
@@ -53,7 +53,7 @@ func (e *branchNaneFlagType) SetOne(branch string) error {
 		e.value = e.valids[i]
 		return nil
 	}
-	return errors.New(gotext.Get("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
+	return errors.New(tr.T("must be one of") + ` "` + strings.Join(e.valids, `", "`) + `"`)
 }
 
 func (e *branchNaneFlagType) Type() string {
@@ -194,7 +194,7 @@ ex:
 						d := time.Since(pkg.BUILDDATE)
 						days := ""
 						if d.Hours() >= 24 {
-							days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), gotext.Get("days"))
+							days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), tr.T("days"))
 						}
 						ver := pkg.VERSION
 						if oldVersion != "" {
@@ -230,7 +230,7 @@ ex:
 				}
 
 				/*if i > 264 {
-					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", gotext.Get("Too many packages, stop here"))
+					fmt.Fprintf(os.Stderr, "WARNING!\n  %s\n", tr.T("Too many packages, stop here"))
 					break
 				}*/
 			}
@@ -243,17 +243,17 @@ ex:
 }
 
 func init() {
-	setLocale()
+
 	rootCmd.AddCommand(infoCmd)
-	infoCmd.Short = gotext.Get("a brief description of your package")
+	infoCmd.Short = tr.T(infoCmd.Short)
 
 	if len(os.Getenv("GEMINI_API_KEY")) > 1 {
-		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, gotext.Get("add General Info by Gemini"))
+		infoCmd.Flags().BoolVarP(&FlagAI, "ai", "", FlagAI, tr.T("add General Info by Gemini"))
 	}
 	if alpm.LocalDBExists() {
-		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, gotext.Get("package installed ?"))
+		infoCmd.Flags().BoolVarP(&FlagInstalled, "installed", "i", FlagInstalled, tr.T("package installed ?"))
 		if _, err := os.Stat("/usr/bin/pacman"); err == nil {
-			infoCmd.Flags().Var(&FlagDetailInfo, "detail", gotext.Get("run pacman -Si in `branch`"))
+			infoCmd.Flags().Var(&FlagDetailInfo, "detail", tr.T("run pacman -Si in `branch`"))
 		}
 	}
 

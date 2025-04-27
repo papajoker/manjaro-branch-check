@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
@@ -138,18 +137,4 @@ func Execute() {
 		fmt.Println("ERROR!", err)
 		os.Exit(1)
 	}
-}
-
-func setLocale() {
-	exePath, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	dir := filepath.Join(filepath.Dir(exePath), "locale")
-	// dir ok if app is a link
-	gotext.Configure(dir, "fr", "default")
-}
-
-func init() {
-	setLocale()
 }

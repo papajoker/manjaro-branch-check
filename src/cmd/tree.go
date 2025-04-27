@@ -7,6 +7,7 @@ import (
 	"io"
 	"mbc/alpm"
 	"mbc/theme"
+	"mbc/tr"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -16,7 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -251,7 +251,7 @@ func tree(config Config, cacheDir, confFilename string) {
 				d := time.Since(fileInfo.ModTime())
 				days := ""
 				if d.Hours() >= 48 {
-					days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), gotext.Get("days"))
+					days = fmt.Sprintf("(%d %s)", int(d.Hours()/24), tr.T("days"))
 				}
 
 				pkgs, _ := alpm.Load(dirPath, []string{repo}, branch, false)
@@ -285,16 +285,16 @@ func tree(config Config, cacheDir, confFilename string) {
 		if err == nil {
 			fmt.Printf("# %-16s: %s\t%s\n",
 				"LTS", strings.Join(lts, ", "),
-				theme.ColorGray+"\t("+gotext.Get("by")+" kernel.org)"+theme.ColorNone)
+				theme.ColorGray+"\t("+tr.T("by")+" kernel.org)"+theme.ColorNone)
 		}
 	}
-	fmt.Printf("# %-16s: %s\n", gotext.Get("mirrors"), strings.Join(urls, ", "))
-	fmt.Printf("# %-16s: %s\n", gotext.Get("database"), toHomeDir(cacheDir))
-	fmt.Printf("# %-16s: %s\n", gotext.Get("config"), toHomeDir(confFilename))
+	fmt.Printf("# %-16s: %s\n", tr.T("mirrors"), strings.Join(urls, ", "))
+	fmt.Printf("# %-16s: %s\n", tr.T("database"), toHomeDir(cacheDir))
+	fmt.Printf("# %-16s: %s\n", tr.T("config"), toHomeDir(confFilename))
 	if alpm.LocalDBExists() {
 		pkgs, err := alpm.LoadLocal()
 		if err == nil {
-			fmt.Printf("# %-16s: %d %s\n", gotext.Get("installed"), len(pkgs), gotext.Get("packages"))
+			fmt.Printf("# %-16s: %d %s\n", tr.T("installed"), len(pkgs), tr.T("packages"))
 		}
 	}
 	fmt.Printf("# %s: V%v %v %v %v\n", filepath.Base(os.Args[0]), Version, GitID, GitBranch, BuildDate)
@@ -313,7 +313,7 @@ var treeCmd = &cobra.Command{
 }
 
 func init() {
-	treeCmd.Short = gotext.Get("infos on local repos")
+	treeCmd.Short = tr.T(treeCmd.Short)
 	rootCmd.AddCommand(treeCmd)
 	setCompletion()
 }

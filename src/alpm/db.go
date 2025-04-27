@@ -7,14 +7,13 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"mbc/tr"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/leonelquinteros/gotext"
 )
 
 type (
@@ -201,17 +200,17 @@ func Load(dirPath string, repos []string, branch string, long bool) (pkgs Packag
 		for pkg := range results {
 			if _, ok := pkgs[pkg.NAME]; ok {
 				if compareRepo(repos, *pkgs[pkg.NAME], pkg) > 0 {
-					warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), pkg.NAME, branch, pkg.REPO))
+					warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", tr.T("ignore duplicate"), pkg.NAME, branch, pkg.REPO))
 				} else {
-					warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), pkgs[pkg.NAME].NAME, branch, pkgs[pkg.NAME].REPO))
+					warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", tr.T("ignore duplicate"), pkgs[pkg.NAME].NAME, branch, pkgs[pkg.NAME].REPO))
 					pkgs[pkg.NAME] = &pkg
 				}
 				continue
 			}
 			pkgs[pkg.NAME] = &pkg
 		}
-		//warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), "truc", "stable", "core"))
-		//warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", gotext.Get("ignore duplicate"), "machin", "stable", "core"))
+		//warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", tr.T("ignore duplicate"), "truc", "stable", "core"))
+		//warnings = append(warnings, fmt.Sprintf("# %s : %s (%s.%s)\n", tr.T("ignore duplicate"), "machin", "stable", "core"))
 	}()
 
 	for _, repo := range repos {

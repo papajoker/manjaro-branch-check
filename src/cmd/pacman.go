@@ -4,12 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"mbc/theme"
+	"mbc/tr"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/leonelquinteros/gotext"
 	"github.com/spf13/cobra"
 )
 
@@ -102,20 +102,20 @@ pacman -Sl: List :
 func init() {
 	if _, err := os.Stat("/usr/bin/pacman"); err == nil {
 		rootCmd.AddCommand(pacmanCmd)
-		pacmanCmd.Short = gotext.Get("run pacman in branch")
+		pacmanCmd.Short = tr.T(pacmanCmd.Short)
 
-		pacmanCmd.Flags().BoolVarP(&FlagSearch, "Search", "S", false, gotext.Get("search"))
-		pacmanCmd.Flags().BoolVarP(&FlagList, "List", "L", false, gotext.Get("list"))
-		pacmanCmd.Flags().BoolVarP(&FlagInfo, "Info", "I", false, gotext.Get("info"))
+		pacmanCmd.Flags().BoolVarP(&FlagSearch, "Search", "S", false, tr.T("search"))
+		pacmanCmd.Flags().BoolVarP(&FlagList, "List", "L", false, tr.T("list"))
+		pacmanCmd.Flags().BoolVarP(&FlagInfo, "Info", "I", false, tr.T("info"))
 		pacmanCmd.MarkFlagsOneRequired("Search", "List", "Info")
 		pacmanCmd.MarkFlagsMutuallyExclusive("Search", "List", "Info")
 
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+gotext.Get("branch"))
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+gotext.Get("branch"))
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+gotext.Get("branch"))
-		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+gotext.Get("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagStable, "stable", "s", FlagBranches.FlagStable, "stable "+tr.T("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagTesting, "testing", "t", FlagBranches.FlagTesting, "testing "+tr.T("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagUnstable, "unstable", "u", FlagBranches.FlagUnstable, "unstable "+tr.T("branch"))
+		pacmanCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+tr.T("branch"))
 		pacmanCmd.MarkFlagsOneRequired("stable", "testing", "unstable", "archlinux")
 		pacmanCmd.MarkFlagsMutuallyExclusive("stable", "testing", "unstable", "archlinux")
-		pacmanCmd.Flags().BoolVarP(&FlagQuiet, "quiet", "q", FlagQuiet, gotext.Get("show less information"))
+		pacmanCmd.Flags().BoolVarP(&FlagQuiet, "quiet", "q", FlagQuiet, tr.T("show less information"))
 	}
 }
