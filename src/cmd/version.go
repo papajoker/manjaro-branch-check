@@ -69,8 +69,7 @@ func version(versions *[]versionResult, config Config, cacheDir string, branches
 
 	if FlagLocal {
 		// in output, whant only installed package
-		locals, err := alpm.LoadLocal()
-		if err == nil {
+		if locals, err := alpm.LoadLocal(); err == nil {
 			tmp[0] = alpm.FilterOnly(tmp[0], locals)
 			tmp[1] = alpm.FilterOnly(tmp[1], locals)
 		}

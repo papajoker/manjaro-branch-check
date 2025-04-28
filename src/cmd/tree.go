@@ -292,8 +292,7 @@ func tree(config Config, cacheDir, confFilename string) {
 	fmt.Printf("# %-16s: %s\n", tr.T("database"), toHomeDir(cacheDir))
 	fmt.Printf("# %-16s: %s\n", tr.T("config"), toHomeDir(confFilename))
 	if alpm.LocalDBExists() {
-		pkgs, err := alpm.LoadLocal()
-		if err == nil {
+		if pkgs, err := alpm.LoadLocal(); err == nil {
 			fmt.Printf("# %-16s: %d %s\n", tr.T("installed"), len(pkgs), tr.T("packages"))
 		}
 	}

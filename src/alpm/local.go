@@ -16,15 +16,14 @@ func LocalDBExists() bool {
 }
 
 func LoadLocal() (pkgs Packages, err error) {
-	//var wg sync.WaitGroup
-	pkgs = make(Packages)
 
 	if !LocalDBExists() {
-		return pkgs, fmt.Errorf("pacman DB not exists")
+		return nil, fmt.Errorf("pacman DB not exists")
 	}
 
 	matches, _ := filepath.Glob("/var/lib/pacman/local/*/desc")
 	count := len(matches)
+	pkgs = make(map[string]*Package, count)
 	results := make(chan Package, count)
 	for _, match := range matches {
 
@@ -47,7 +46,7 @@ func LoadLocal() (pkgs Packages, err error) {
 	}
 
 	if len(pkgs) < 1 {
-		return pkgs, fmt.Errorf("pacman DB empty")
+		return nil, fmt.Errorf("pacman DB empty")
 	}
 	return pkgs, nil
 }
