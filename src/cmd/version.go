@@ -18,6 +18,7 @@ import (
 var (
 	FlagDowngrade bool
 	FlagLocal     bool
+	FlagKernel    bool
 	FlagGrep      string
 )
 
@@ -173,6 +174,10 @@ linux66                              6.6.83-1                     6.6.84-1
 			fmt.Println()
 		}
 
+		if FlagKernel {
+			FlagGrep = "#kernel"
+		}
+
 		var versions []versionResult
 		col1, col2, grepflag := version(&versions, conf, cacheDir, branches)
 
@@ -209,6 +214,7 @@ func init() {
 	versionCmd.Flags().BoolVarP(&FlagBranches.FlagArchlinux, "archlinux", "a", FlagBranches.FlagArchlinux, "archlinux "+tr.T("branch"))
 	versionCmd.Flags().BoolVarP(&FlagDowngrade, "overgrade", "", FlagDowngrade, tr.T("display only downgrade up"))
 	versionCmd.Flags().StringVarP(&FlagGrep, "grep", "", "", tr.T("name filter (regex)"))
+	versionCmd.Flags().BoolVarP(&FlagKernel, "kernel", "k", FlagKernel, "--grep '#kernel'")
 	if alpm.LocalDBExists() {
 		versionCmd.Flags().BoolVarP(&FlagLocal, "local", "", FlagInstalled, tr.T("only installed packages filter"))
 	}
