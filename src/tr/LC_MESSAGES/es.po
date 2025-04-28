@@ -1,0 +1,154 @@
+msgid ""
+msgstr ""
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+
+
+msgid "branch"
+msgstr "rama"
+
+msgid "branches"
+msgstr "ramas"
+
+#tree
+
+msgid "by"
+msgstr "por"
+
+msgid "database"
+msgstr "base de datos"
+
+msgid "server"
+msgstr "servidor"
+
+msgid "servers"
+msgstr "servidores"
+
+msgid "mirrors"
+msgstr "espejos"
+
+msgid "config"
+msgstr "configuración"
+
+msgid "installed"
+msgstr "instalado"
+
+msgid "infos on local repos"
+msgstr "información sobre los repositorios locales (caché)"
+
+#info
+
+msgid "a brief description of your package"
+msgstr "una breve descripción de tu paquete"
+
+msgid "days"
+msgstr "días"
+
+msgid "day"
+msgstr "día"
+
+msgid "package installed ?"
+msgstr "¿paquete instalado? (* si sí)"
+
+msgid "must be one of"
+msgstr "debe ser uno de"
+
+msgid "add General Info by Gemini"
+msgstr "añade información general del paquete por Gemini"
+
+msgid "run pacman -Si in `branch`"
+msgstr "ejecuta además un `pacman -Si` en la `rama` solicitada"
+
+
+#pacman
+
+msgid "run pacman in branch"
+msgstr "ejecutar `pacman` en una rama"
+
+msgid  "search"
+msgstr "buscar   (-Ss)"
+
+msgid  "list"
+msgstr "listar   (-Sl)"
+
+msgid  "info"
+msgstr "información sobre un paquete   (-Si)"
+
+msgid  "show less information"
+msgstr "mostrar menos información"
+
+#diff
+
+msgid  "branch packages differences"
+msgstr "diferencias de paquetes entre las ramas"
+
+msgid  "use only flags! %v too mutch"
+msgstr "¡usa solo flags! %v es demasiado"
+
+msgid  "invalid branches specified: not %d"
+msgstr "Número de ramas inválido, no %d"
+
+msgid "new packages detail"
+msgstr "añade el detalle de los nuevos paquetes"
+
+msgid "removed manjaro packages detail"
+msgstr "añade el detalle de los paquetes eliminados de Manjaro"
+
+
+#version
+
+msgid "packages"
+msgstr "paquetes"
+
+msgid "filter"
+msgstr "filtro"
+
+msgid "compare versions over branches"
+msgstr "comparar las versiones entre las ramas"
+
+msgid "name filter (regex)"
+msgstr "filtro por nombre de paquete (regex)"
+
+msgid "display only downgrade up"
+msgstr "filtra las versiones superiores a la rama siguiente"
+
+msgid "invalid branches specified: %s"
+msgstr "número de ramas inválido: %s"
+
+msgid "use only flags! %v too mutch"
+msgstr "¡usa solo flags! %v demasiado"
+
+msgid "only installed packages filter"
+msgstr "filtro solo para los paquetes instalados"
+
+#list
+msgid "list packagers"
+msgstr "listar los empaquetadores"
+
+msgid  "packager filter (regex)"
+msgstr "filtro por empaquetador (regex)"
+
+#rm
+
+msgid "remove database in"
+msgstr "eliminar la base de datos en"
+
+msgid "Directory"
+msgstr "Directorio"
+
+msgid "Delete this script and configuration"
+msgstr "Eliminar este script y su configuración"
+
+msgid "removed successfully"
+msgstr "eliminado correctamente"
+
+#update
+
+msgid "Update branches"
+msgstr "Actualizar ramas"
+
+msgid "Update Manjaro and Archlinux pacman databases"
+msgstr "Actualizar las bases de datos de pacman para Manjaro y Archlinux"

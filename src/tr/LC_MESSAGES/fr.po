@@ -10,6 +10,9 @@ msgstr ""
 msgid "branch"
 msgstr "branche"
 
+msgid "branches"
+msgstr "branches"
+
 #tree
 
 msgid "by"
