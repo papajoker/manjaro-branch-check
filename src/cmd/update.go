@@ -207,7 +207,7 @@ func update(config Config, silent bool) {
 						go func(url, path, branch string) {
 							defer wg.Done()
 							if err := downloadFile(url, path); err != nil {
-								fmt.Fprintf(out, "%s: %v\n", tr.T("Download error"), err)
+								fmt.Fprintf(out, "%s: %s, %v\n", tr.T("Download error"), url, err)
 							} else {
 								path := strings.ReplaceAll(path, "/"+branch+"/", "/"+theme.Theme(branch)+branch+theme.Theme("")+"/")
 								fmt.Fprintf(out, "%s%s:%s %s\n", theme.Theme(branch), tr.T("Downloaded"), theme.Theme(""), path)
