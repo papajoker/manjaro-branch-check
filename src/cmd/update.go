@@ -144,7 +144,8 @@ func update(config Config, silent bool) {
 						finalURL := strings.ReplaceAll(url, "$branch", branch)
 						finalURL = strings.ReplaceAll(finalURL, "$repo", repo)
 						finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-						fmt.Fprintln(out, finalURL, theme.Theme(branch)+"..."+theme.Theme(""))
+						finald, _ := strings.CutPrefix(finalURL, "https://")
+						fmt.Fprintln(out, finald, theme.Theme(branch)+"..."+theme.Theme(""))
 
 						dirPath := filepath.Join(cacheBase, branch, "sync")
 						if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
@@ -186,7 +187,9 @@ func update(config Config, silent bool) {
 					//finalURL := strings.ReplaceAll(url, "$branch", branch)
 					finalURL := strings.ReplaceAll(url, "$repo", repo)
 					finalURL = strings.ReplaceAll(finalURL, "$arch", arch)
-					fmt.Fprintln(out, finalURL, theme.Theme(branch)+"..."+theme.Theme(""))
+					finald, _ := strings.CutPrefix(finalURL, "https://")
+					finald, _ = strings.CutPrefix(finald, "http://")
+					fmt.Fprintln(out, finald, theme.Theme(branch)+"..."+theme.Theme(""))
 
 					dirPath := filepath.Join(cacheBase, branch, "sync")
 					if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
