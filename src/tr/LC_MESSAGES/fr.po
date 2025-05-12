@@ -62,6 +62,8 @@ msgstr "ajoute une information générale sur le paquet par ia Gemini"
 msgid "run pacman -Si in `branch`"
 msgstr "exécute en plus un `pacman -Si` dans la `branche` demandée"
 
+msgid  "display all branches"
+msgstr "afficher toutes les branches"
 
 #pacman
 

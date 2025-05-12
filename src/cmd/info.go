@@ -26,6 +26,7 @@ type branchNaneFlagType struct {
 var (
 	FlagAI         bool
 	FlagInstalled  bool
+	FlagAll        bool
 	FlagDetailInfo branchNaneFlagType
 )
 
@@ -187,7 +188,7 @@ ex:
 					//fmt.Println("  ", Theme(branch)+branch+Theme(""))
 					pkg := pkgs[branch][pkgName]
 					if pkg != nil {
-						if pkg.VERSION == oldVersion {
+						if !FlagAll && (pkg.VERSION == oldVersion) {
 							continue
 						}
 
@@ -256,6 +257,7 @@ func init() {
 			infoCmd.Flags().Var(&FlagDetailInfo, "detail", tr.T("run pacman -Si in `branch`"))
 		}
 	}
+	infoCmd.Flags().BoolVarP(&FlagAll, "all", "", FlagAll, tr.T("display all branches"))
 
 	conf, _ := loadConfig(Config{}.configFile())
 	FlagDetailInfo = branchNaneFlagType{
