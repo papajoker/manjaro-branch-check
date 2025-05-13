@@ -36,11 +36,15 @@ type Config struct {
 }
 
 func (c Config) cache() string {
-	return filepath.Join(os.Getenv("HOME"), ".cache", ApplicationID)
+	h, _ := os.UserHomeDir()
+	os.MkdirAll(filepath.Join(h, ".cache"), os.ModePerm)
+	return filepath.Join(h, ".cache", ApplicationID)
 }
 
 func (c Config) configFile() string {
-	return filepath.Join(os.Getenv("HOME"), ".config", ApplicationID+".yaml")
+	h, _ := os.UserHomeDir()
+	os.MkdirAll(filepath.Join(h, ".config"), os.ModePerm)
+	return filepath.Join(h, ".config", ApplicationID+".yaml")
 }
 
 type AppConfig struct {

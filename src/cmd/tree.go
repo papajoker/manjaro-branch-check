@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -166,6 +167,10 @@ func sortKernels(kernels []string) {
 
 func setCompletion() {
 
+	if runtime.GOOS == "windows" {
+		return
+	}
+
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
 
 	var up = func(filename string, gen func(buf io.Writer) error) {
@@ -189,15 +194,16 @@ func setCompletion() {
 
 	// Version = "0.1.1" // for test with go run
 
-	up(filepath.Join(os.Getenv("HOME"), ".config", "fish", "completions", "mbc.fish"), func(buf io.Writer) error {
+	h, _ := os.UserHomeDir()
+	up(filepath.Join(h, ".config", "fish", "completions", "mbc.fish"), func(buf io.Writer) error {
 		return rootCmd.GenFishCompletion(buf, true)
 	})
 	// ?? .local/share}/bash-completion}/completions
-	up(filepath.Join(os.Getenv("HOME"), ".local", "share", "bash-completion", "completions", "mbc"), func(buf io.Writer) error {
+	up(filepath.Join(h, ".local", "share", "bash-completion", "completions", "mbc"), func(buf io.Writer) error {
 		return rootCmd.GenBashCompletion(buf)
 	})
 	// ?? ~/.zsh/cache/mbc in manjaro-zsh-config
-	up(filepath.Join(os.Getenv("HOME"), ".zsh", "cache", "mbc"), func(buf io.Writer) error {
+	up(filepath.Join(h, ".zsh", "cache", "mbc"), func(buf io.Writer) error {
 		return rootCmd.GenZshCompletion(buf)
 	})
 
